@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🧬 Module 01 — Git Fundamentals
 
@@ -397,7 +397,7 @@ it's one of the most practically useful commands in this entire module.
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-01--git-fundamentals)** | **[🏠 Main README](../README.md)** | **[← Previous: Introduction](../00-introduction/)** | **[Next: Git + GitHub →](../02-git-and-github/)**
 

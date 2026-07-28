@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # ↩️ Module 04 — Undo & Recovery
 
@@ -248,7 +248,7 @@ Reflog section above.
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-04--undo--recovery)** | **[🏠 Main README](../README.md)** | **[← Previous: Contributing to Open Source](../03-contributing-to-open-source/)** | **[Next: Advanced Git →](../05-advanced-git/)**
 

@@ -1,0 +1,18 @@
+<!-- Mermaid diagram support for GitHub Pages (kramdown/Rouge outputs fenced ```mermaid
+     blocks as <pre><code class="language-mermaid">...</code></pre>, which Mermaid.js
+     doesn't auto-detect — this converts them to <pre class="mermaid"> before init. -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('code.language-mermaid').forEach(function (codeEl) {
+      var pre = document.createElement('pre');
+      pre.className = 'mermaid';
+      pre.textContent = codeEl.textContent;
+      var oldPre = codeEl.closest('pre') || codeEl;
+      oldPre.replaceWith(pre);
+    });
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    }
+  });
+</script>

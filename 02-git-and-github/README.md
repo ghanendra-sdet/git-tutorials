@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🌐 Module 02 — Git + GitHub
 
@@ -295,7 +295,7 @@ early feedback instead of a surprise 400-line diff at the end.
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-02--git--github)** | **[🏠 Main README](../README.md)** | **[← Previous: Git Fundamentals](../01-git-fundamentals/)** | **[Next: Contributing to Open Source →](../03-contributing-to-open-source/)**
 

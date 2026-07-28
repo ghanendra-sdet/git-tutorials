@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🎓 Module 06 — Certification Prep
 
@@ -159,7 +159,7 @@ solid level — deeper than most multiple-choice exams actually test for.
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-06--certification-prep)** | **[🏠 Main README](../README.md)** | **[← Previous: Advanced Git](../05-advanced-git/)** | **[Next: Exercises & Study Plan →](../07-exercises-and-study-plan/)**
 

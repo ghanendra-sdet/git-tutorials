@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🚀 Module 05 — Advanced Git
 
@@ -354,7 +354,7 @@ the actual, unskippable gate.)
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-05--advanced-git)** | **[🏠 Main README](../README.md)** | **[← Previous: Undo & Recovery](../04-undo-and-recovery/)** | **[Next: Certification Prep →](../06-certification-prep/)**
 

@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🏠 Module 00 — Introduction & Setup
 
@@ -280,7 +280,7 @@ into files.
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-00--introduction--setup)** | **[🏠 Main README](../README.md)** | **[Next: Git Fundamentals →](../01-git-fundamentals/)**
 

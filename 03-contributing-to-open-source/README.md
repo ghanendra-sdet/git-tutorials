@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🤝 Module 03 — Contributing to Open Source
 
@@ -179,7 +179,7 @@ unnecessary extra noise for the maintainer.)
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-03--contributing-to-open-source)** | **[🏠 Main README](../README.md)** | **[← Previous: Git + GitHub](../02-git-and-github/)** | **[Next: Undo & Recovery →](../04-undo-and-recovery/)**
 

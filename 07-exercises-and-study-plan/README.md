@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🏁 Module 07 — Exercises & Study Plan (Capstone)
 
@@ -190,7 +190,7 @@ range of what "knows Git" means in a real job.
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 **[⬆ Back to Top](#-module-07--exercises--study-plan-capstone)** | **[🏠 Main README](../README.md)** | **[← Previous: Certification Prep](../06-certification-prep/)**
 

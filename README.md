@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown="1">
 
 # 🐙 GIT Tutorials — From `git init` to "wait, how do I undo this"
 
@@ -134,7 +134,7 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-<div align="center">
+<div align="center" markdown="1">
 
 ### 📚 [Start with Module 00 →](./00-introduction/)
 

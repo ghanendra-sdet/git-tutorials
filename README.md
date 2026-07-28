@@ -109,6 +109,19 @@ progression. This is where reading turns into muscle memory.
 
 ---
 
+## 🧠 Practice & Recall
+
+Reading a module once won't make the commands stick — using them will. Two resources built
+specifically for that:
+
+- **[Command Recall Drill](./resources/command-recall-drill.md)** — scenario-based, fold-to-reveal
+  quizzing across every module. Do 10-15 a day, not all of them at once — this is spaced
+  repetition, not a reading list.
+- **[Cheatsheet](./resources/cheatsheet.md)** — a flat, one-page reference for when you already
+  know the command and just blanked on the exact flag.
+
+---
+
 ## 🎓 Who this is for
 
 | You are... | You'll get... |

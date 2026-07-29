@@ -16,3 +16,23 @@
     }
   });
 </script>
+
+<!-- Open external / other-repo links in a new tab. Relative links and links back into this
+     same repo's own pages stay in the current tab. -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var repoBase = location.pathname.split('/').slice(0, 2).join('/'); // e.g. "/git-tutorials"
+    document.querySelectorAll('a[href]').forEach(function (a) {
+      var href = a.getAttribute('href');
+      if (!/^https?:\/\//i.test(href)) return; // relative/internal link — leave as-is
+      try {
+        var url = new URL(href, location.href);
+        var isSameRepo = url.origin === location.origin && url.pathname.indexOf(repoBase + '/') === 0;
+        if (!isSameRepo) {
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener noreferrer');
+        }
+      } catch (e) { /* ignore malformed hrefs */ }
+    });
+  });
+</script>

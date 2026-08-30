@@ -11,6 +11,8 @@
 
 **A structured, hands-on Git + GitHub course — real commands, real analogies, real "oh no I force-pushed to main" recovery stories, zero corporate-training energy.**
 
+**🌐 Browse it live:** [ghanendra-sdet.github.io/git-tutorials](https://ghanendra-sdet.github.io/git-tutorials/)
+
 </div>
 
 ---

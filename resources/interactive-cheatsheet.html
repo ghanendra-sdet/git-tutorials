@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Cheatsheet Matrix — GIT Tutorials</title>
+<meta name="description" content="Searchable, filterable Git command matrix with copy-to-clipboard and a live commit-graph sandbox.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background-color: #09090b; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #18181b; }
+  ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+  .card-enter { animation: cardIn .25s ease both; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .filter-pill[data-active="true"] { color: #09090b; }
+</style>
+</head>
+<body class="min-h-screen bg-zinc-950 text-zinc-200 antialiased">
+
+  <!-- ============ HEADER ============ -->
+  <header class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+          <span aria-hidden="true">🧊</span> Interactive Cheatsheet Matrix
+        </h1>
+        <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">
+          Every command from the course, filterable by how much you're panicking.
+        </p>
+      </div>
+      <a href="./cheatsheet.md"
+         class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 border border-zinc-700 hover:border-emerald-500 hover:text-emerald-400 rounded-full px-3 py-1.5 transition-colors">
+        📖 Flat reference
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-14">
+
+    <!-- ============ CHEATSHEET MATRIX ============ -->
+    <section aria-labelledby="matrix-heading">
+
+      <!-- Search -->
+      <div class="relative mb-5">
+        <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">🔎</span>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search a command, or just type what's going wrong (e.g. “lost”, “stuck”, “conflict”)…"
+          class="w-full rounded-xl bg-zinc-900 border border-zinc-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none pl-11 pr-4 py-3 text-sm placeholder:text-zinc-500 transition-colors"
+        />
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-col sm:flex-row sm:items-start gap-4 mb-6">
+
+        <div class="flex-1">
+          <p class="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Panic Level</p>
+          <div class="flex flex-wrap gap-2" id="panic-filters" role="group" aria-label="Filter by panic level"></div>
+        </div>
+
+        <div class="flex-1">
+          <p class="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Action Type</p>
+          <div class="flex flex-wrap gap-2" id="action-filters" role="group" aria-label="Filter by action type"></div>
+        </div>
+
+        <div class="sm:pt-6">
+          <button id="clear-filters"
+            class="text-xs text-zinc-500 hover:text-rose-400 underline decoration-dotted transition-colors">
+            Clear filters
+          </button>
+        </div>
+      </div>
+
+      <p id="result-count" class="text-xs text-zinc-500 mb-4" aria-live="polite"></p>
+
+      <div id="card-grid" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+      <p id="empty-state" class="hidden text-center text-zinc-500 text-sm py-16">
+        Nothing matches. Even <code class="text-zinc-400">git</code> can't find that one. Try clearing a filter.
+      </p>
+    </section>
+
+    <!-- ============ VISUAL SANDBOX ============ -->
+    <section aria-labelledby="sandbox-heading" class="border-t border-zinc-800 pt-10">
+      <h2 id="sandbox-heading" class="text-lg font-bold text-white flex items-center gap-2 mb-1">
+        <span aria-hidden="true">🌳</span> Visual Git Tree Sandbox
+      </h2>
+      <p class="text-sm text-zinc-400 mb-5 max-w-2xl">
+        A tiny, fake, entirely consequence-free Git repo. Click the buttons, watch the tree change.
+        Nothing here can actually break — that's the whole point.
+      </p>
+
+      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-6">
+        <canvas id="git-canvas" width="900" height="260" class="w-full h-auto rounded-lg bg-zinc-950 border border-zinc-800"></canvas>
+
+        <div class="flex flex-wrap items-center gap-2 mt-5">
+          <button data-action="commit"
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold text-sm px-3.5 py-2 transition-colors">
+            ➕ git commit
+          </button>
+          <button data-action="branch"
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-sm px-3.5 py-2 transition-colors">
+            🌿 git branch feature
+          </button>
+          <button data-action="checkout-main"
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-sm px-3.5 py-2 transition-colors">
+            📍 checkout main
+          </button>
+          <button data-action="checkout-feature"
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-sm px-3.5 py-2 transition-colors" disabled>
+            📍 checkout feature
+          </button>
+          <button data-action="merge"
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-zinc-950 font-semibold text-sm px-3.5 py-2 transition-colors" disabled>
+            🔀 git merge feature
+          </button>
+          <button data-action="reset"
+            class="sandbox-btn ml-auto inline-flex items-center gap-1.5 rounded-lg text-rose-400 hover:text-rose-300 text-sm px-3.5 py-2 transition-colors">
+            ♻️ reset sandbox
+          </button>
+        </div>
+
+        <p id="sandbox-status" class="mt-4 text-sm text-zinc-400 font-mono" aria-live="polite">
+          On <span class="text-emerald-400 font-semibold">main</span> · 1 commit
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 sm:px-6 py-10 text-center text-xs text-zinc-600">
+    Part of <a href="../" class="text-zinc-400 hover:text-emerald-400 underline decoration-dotted">GIT Tutorials</a>
+    — no corporate training energy, just commands that make sense.
+  </footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+     DATA — every command tagged by Panic Level + Action Type
+     ========================================================= */
+  const PANIC = {
+    mild:     { label: "Mildly Annoyed",   emoji: "😌", color: "emerald" },
+    sweating: { label: "Sweating",         emoji: "😅", color: "amber"   },
+    meltdown: { label: "Complete Meltdown", emoji: "🔥", color: "rose"   },
+  };
+
+  const ACTION = {
+    local: { label: "Local Work", emoji: "💻" },
+    sync:  { label: "Syncing",    emoji: "🔄" },
+    undo:  { label: "Undo",       emoji: "↩️" },
+  };
+
+  const COMMANDS = [
+    { cmd: "git status", panic: "mild", action: "local",
+      desc: "The “what's going on right now” button. Run this obsessively — nobody's judging." },
+    { cmd: "git add <file>", panic: "mild", action: "local",
+      desc: "Stage exactly one file, like a responsible adult." },
+    { cmd: "git add -p", panic: "mild", action: "local",
+      desc: "Stage your changes chunk by chunk, for when `git add .` feels a little too reckless." },
+    { cmd: 'git commit -m "message"', panic: "mild", action: "local",
+      desc: "Snapshot time. Future-you will thank present-you for a message better than “fix”." },
+    { cmd: "git log --oneline", panic: "mild", action: "local",
+      desc: "The condensed history, for when `git log` looks like a wall of text." },
+    { cmd: "git log --graph --oneline --all", panic: "mild", action: "local",
+      desc: "See every branch's story as an actual picture instead of guessing." },
+    { cmd: "git branch", panic: "mild", action: "local",
+      desc: "List branches, because you've definitely forgotten which one you're on." },
+    { cmd: "git checkout -b feature/name", panic: "mild", action: "local",
+      desc: "Create a branch and switch to it in one move. Efficiency." },
+    { cmd: "git switch feature/name", panic: "mild", action: "local",
+      desc: "The modern, less-confusing way to change branches." },
+    { cmd: "git commit --amend --no-edit", panic: "sweating", action: "local",
+      desc: "You forgot a file. This un-seals the package you just sent, adds it, reseals it — only before you've pushed." },
+    { cmd: "git stash", panic: "sweating", action: "local",
+      desc: "Shelve your mess without committing it, because your boss is walking over." },
+    { cmd: "git stash pop", panic: "sweating", action: "local",
+      desc: "Bring the mess back. Hope you remember what it was." },
+    { cmd: "git rebase main", panic: "sweating", action: "local",
+      desc: "Replay your branch on the newest main for clean history — your own branch only, never main." },
+    { cmd: "git merge --abort", panic: "sweating", action: "local",
+      desc: "Bail out of a conflict you're not ready to face. No shame in it." },
+    { cmd: "git branch -D feature/name", panic: "sweating", action: "local",
+      desc: "Force-delete a branch, unmerged changes and all. Make sure you meant it." },
+    { cmd: "git remote -v", panic: "mild", action: "sync",
+      desc: "See where “origin” actually points before you push into the void." },
+    { cmd: "git fetch origin", panic: "mild", action: "sync",
+      desc: "Check what changed on the remote without touching your own work yet." },
+    { cmd: "git push -u origin main", panic: "mild", action: "sync",
+      desc: "The first push — this is the one that also sets up the relationship." },
+    { cmd: "git push", panic: "mild", action: "sync",
+      desc: "Every push after that first one. Much simpler now." },
+    { cmd: "git remote prune origin", panic: "mild", action: "sync",
+      desc: "Clean up remote-tracking branches that don't exist anymore. Low risk, oddly satisfying." },
+    { cmd: "git remote add upstream <url>", panic: "mild", action: "sync",
+      desc: "Point at the original repo so you can actually stay in sync with it." },
+    { cmd: "git pull origin main", panic: "sweating", action: "sync",
+      desc: "Fetch and merge in one step — fine, until it isn't, and you get a conflict." },
+    { cmd: "git push --force-with-lease", panic: "sweating", action: "sync",
+      desc: "The “safer” force push — refuses if someone else pushed since you last looked." },
+    { cmd: "git merge upstream/main", panic: "sweating", action: "sync",
+      desc: "Sync your fork with reality before opening a PR against code that's months out of date." },
+    { cmd: "git revert <hash>", panic: "mild", action: "undo",
+      desc: "Undo publicly and safely — writes a new “here's the fix” commit instead of pretending nothing happened." },
+    { cmd: "git reset --soft HEAD~1", panic: "sweating", action: "undo",
+      desc: "Undo the last commit but keep everything staged, ready to redo it properly." },
+    { cmd: "git reset --mixed HEAD~1", panic: "sweating", action: "undo",
+      desc: "Undo the last commit and unstage everything — the default flavor of reset." },
+    { cmd: "git cherry-pick <hash>", panic: "sweating", action: "undo",
+      desc: "Grab one specific commit from anywhere and apply it right here." },
+    { cmd: "git reset --hard HEAD~1", panic: "meltdown", action: "undo",
+      desc: "Discards uncommitted changes with zero confirmation. The single most dangerous common Git command — `git status` first, always." },
+    { cmd: "git reflog", panic: "meltdown", action: "undo",
+      desc: "The security camera pointed at your HEAD, recording everywhere it's ever been. Run this before assuming anything is truly, permanently lost." },
+    { cmd: "git branch recovery HEAD@{1}", panic: "meltdown", action: "undo",
+      desc: "Recover a “lost” commit safely, without touching your current branch at all." },
+  ];
+
+  /* =========================================================
+     STATE + FILTER BAR RENDERING
+     ========================================================= */
+  const state = { search: "", panic: "all", action: "all" };
+
+  const colorClasses = {
+    emerald: { bg: "bg-emerald-500", text: "text-emerald-400", border: "border-emerald-500/40", chipBg: "bg-emerald-500/10" },
+    amber:   { bg: "bg-amber-500",   text: "text-amber-400",   border: "border-amber-500/40",   chipBg: "bg-amber-500/10" },
+    rose:    { bg: "bg-rose-500",    text: "text-rose-400",    border: "border-rose-500/40",    chipBg: "bg-rose-500/10" },
+  };
+
+  function buildFilterPills(containerId, entries, stateKey) {
+    const container = document.getElementById(containerId);
+    const allBtn = makePill("all", "All", stateKey, "zinc");
+    container.appendChild(allBtn);
+    Object.entries(entries).forEach(([key, meta]) => {
+      const color = meta.color || "zinc";
+      const btn = makePill(key, `${meta.emoji} ${meta.label}`, stateKey, color);
+      container.appendChild(btn);
+    });
+  }
+
+  function makePill(value, label, stateKey, color) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+    btn.dataset.value = value;
+    btn.className = pillClasses(color, state[stateKey] === value);
+    btn.addEventListener("click", () => {
+      state[stateKey] = value;
+      refreshPillGroup(btn.parentElement, stateKey);
+      render();
+    });
+    btn.classList.add("filter-pill");
+    return btn;
+  }
+
+  function pillClasses(color, active) {
+    const base = "filter-pill text-xs font-medium rounded-full px-3 py-1.5 border transition-colors";
+    if (!active) {
+      return `${base} bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200`;
+    }
+    const map = {
+      zinc:    "bg-zinc-200 border-zinc-200 text-zinc-950",
+      emerald: "bg-emerald-500 border-emerald-500 text-zinc-950",
+      amber:   "bg-amber-500 border-amber-500 text-zinc-950",
+      rose:    "bg-rose-500 border-rose-500 text-zinc-950",
+    };
+    return `${base} ${map[color] || map.zinc}`;
+  }
+
+  function refreshPillGroup(container, stateKey) {
+    [...container.children].forEach((btn) => {
+      const isAll = btn.dataset.value === "all";
+      const color = isAll ? "zinc" : (PANIC[btn.dataset.value] || ACTION[btn.dataset.value] || {}).color || "zinc";
+      const active = state[stateKey] === btn.dataset.value;
+      btn.className = pillClasses(color, active);
+      btn.dataset.active = String(active);
+    });
+  }
+
+  /* =========================================================
+     CARD RENDERING
+     ========================================================= */
+  const grid = document.getElementById("card-grid");
+  const emptyState = document.getElementById("empty-state");
+  const resultCount = document.getElementById("result-count");
+
+  function matches(entry) {
+    const q = state.search.trim().toLowerCase();
+    const matchesSearch = !q || entry.cmd.toLowerCase().includes(q) || entry.desc.toLowerCase().includes(q);
+    const matchesPanic = state.panic === "all" || entry.panic === state.panic;
+    const matchesAction = state.action === "all" || entry.action === state.action;
+    return matchesSearch && matchesPanic && matchesAction;
+  }
+
+  function cardHTML(entry, index) {
+    const panicMeta = PANIC[entry.panic];
+    const actionMeta = ACTION[entry.action];
+    const c = colorClasses[panicMeta.color];
+    return `
+      <article class="card-enter rounded-xl border ${c.border} bg-zinc-900/60 hover:bg-zinc-900 p-4 flex flex-col gap-3 transition-colors" style="animation-delay:${Math.min(index * 20, 200)}ms">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 ${c.chipBg} ${c.text}">
+            ${panicMeta.emoji} ${panicMeta.label}
+          </span>
+          <span class="text-[11px] text-zinc-500">${actionMeta.emoji} ${actionMeta.label}</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <code class="flex-1 text-[13px] leading-snug text-zinc-100 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 overflow-x-auto whitespace-pre">${escapeHTML(entry.cmd)}</code>
+          <button
+            class="copy-btn shrink-0 rounded-lg border border-zinc-700 hover:border-emerald-500 text-zinc-400 hover:text-emerald-400 w-9 h-9 flex items-center justify-center transition-colors"
+            data-cmd="${escapeAttr(entry.cmd)}"
+            aria-label="Copy command to clipboard"
+            title="Copy to clipboard"
+          >📋</button>
+        </div>
+
+        <p class="text-[13px] text-zinc-400 leading-relaxed">${escapeHTML(entry.desc)}</p>
+      </article>`;
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+  function escapeAttr(str) {
+    return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+
+  function render() {
+    const filtered = COMMANDS.filter(matches);
+    grid.innerHTML = filtered.map(cardHTML).join("");
+    emptyState.classList.toggle("hidden", filtered.length !== 0);
+    resultCount.textContent = `${filtered.length} of ${COMMANDS.length} commands`;
+    attachCopyHandlers();
+  }
+
+  function attachCopyHandlers() {
+    document.querySelectorAll(".copy-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.cmd;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (e) {
+          // Clipboard API unavailable (older browser / non-secure context) — fallback.
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        const original = btn.textContent;
+        btn.textContent = "✅";
+        btn.classList.add("text-emerald-400", "border-emerald-500");
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove("text-emerald-400", "border-emerald-500");
+        }, 1200);
+      });
+    });
+  }
+
+  document.getElementById("search-input").addEventListener("input", (e) => {
+    state.search = e.target.value;
+    render();
+  });
+
+  document.getElementById("clear-filters").addEventListener("click", () => {
+    state.search = "";
+    state.panic = "all";
+    state.action = "all";
+    document.getElementById("search-input").value = "";
+    refreshPillGroup(document.getElementById("panic-filters"), "panic");
+    refreshPillGroup(document.getElementById("action-filters"), "action");
+    render();
+  });
+
+  buildFilterPills("panic-filters", PANIC, "panic");
+  buildFilterPills("action-filters", ACTION, "action");
+  render();
+
+  /* =========================================================
+     VISUAL SANDBOX — canvas-based mini commit graph
+     ========================================================= */
+  const canvas = document.getElementById("git-canvas");
+  const ctx = canvas.getContext("2d");
+  const statusEl = document.getElementById("sandbox-status");
+
+  const sandbox = {
+    main: [{ id: "c1" }],
+    feature: null,        // null until branched: { fromIndex, commits: [] }
+    active: "main",
+    merged: false,
+  };
+
+  const COLORS = {
+    main: "#34d399",     // emerald-400
+    feature: "#fbbf24",  // amber-400
+    line: "#3f3f46",     // zinc-700
+    dim: "#52525b",
+    text: "#e4e4e7",
+  };
+
+  function drawSandbox() {
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const startX = 50, stepX = 80, mainY = 90, featureY = 180, r = 10;
+
+    // main branch line
+    const mainLen = sandbox.main.length;
+    ctx.strokeStyle = COLORS.line;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(startX, mainY);
+    ctx.lineTo(startX + (mainLen - 1) * stepX, mainY);
+    ctx.stroke();
+
+    // main label
+    ctx.fillStyle = COLORS.text;
+    ctx.font = "bold 12px ui-monospace, monospace";
+    ctx.fillText("main", 10, mainY + 4);
+
+    // main commits
+    sandbox.main.forEach((c, i) => {
+      const x = startX + i * stepX;
+      drawCommit(x, mainY, COLORS.main, i === mainLen - 1 && sandbox.active === "main" && !sandbox.feature);
+      ctx.fillStyle = COLORS.dim;
+      ctx.font = "11px ui-monospace, monospace";
+      ctx.fillText(c.id, x - 10, mainY - 20);
+    });
+
+    // feature branch
+    if (sandbox.feature) {
+      const branchX = startX + sandbox.feature.fromIndex * stepX;
+      const featStartX = branchX + stepX;
+      const featLen = sandbox.feature.commits.length;
+      const featEndX = featStartX + Math.max(featLen - 1, 0) * stepX;
+
+      // connecting line from main -> feature start
+      ctx.strokeStyle = COLORS.feature;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(branchX, mainY);
+      ctx.bezierCurveTo(branchX + stepX * 0.5, mainY, branchX + stepX * 0.5, featureY, featStartX, featureY);
+      ctx.stroke();
+
+      // feature line
+      if (featLen > 0) {
+        ctx.beginPath();
+        ctx.moveTo(featStartX, featureY);
+        ctx.lineTo(featEndX, featureY);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = COLORS.text;
+      ctx.font = "bold 12px ui-monospace, monospace";
+      ctx.fillText("feature", 10, featureY + 4);
+
+      sandbox.feature.commits.forEach((c, i) => {
+        const x = featStartX + i * stepX;
+        drawCommit(x, featureY, COLORS.feature, i === featLen - 1 && sandbox.active === "feature");
+        ctx.fillStyle = COLORS.dim;
+        ctx.font = "11px ui-monospace, monospace";
+        ctx.fillText(c.id, x - 10, featureY + 26);
+      });
+
+      // merge line back into main
+      if (sandbox.merged) {
+        const mergeX = startX + (sandbox.main.length - 1) * stepX;
+        ctx.strokeStyle = COLORS.amberMerge || "#f59e0b";
+        ctx.beginPath();
+        ctx.moveTo(featEndX, featureY);
+        ctx.bezierCurveTo(featEndX + stepX * 0.5, featureY, mergeX - stepX * 0.2, mainY, mergeX, mainY);
+        ctx.stroke();
+      }
+    }
+
+    function drawCommit(x, y, color, highlighted) {
+      if (highlighted) {
+        ctx.beginPath();
+        ctx.arc(x, y, r + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = color;
+        ctx.globalAlpha = 0.4;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = "#09090b";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  function nextId(list) {
+    return "c" + (list.length + 1);
+  }
+
+  function updateSandboxButtons() {
+    document.querySelector('[data-action="checkout-feature"]').disabled = !sandbox.feature;
+    document.querySelector('[data-action="merge"]').disabled =
+      !sandbox.feature || sandbox.feature.commits.length === 0 || sandbox.merged || sandbox.active !== "main";
+    document.querySelector('[data-action="branch"]').disabled = !!sandbox.feature;
+  }
+
+  function updateStatus() {
+    const branchColor = sandbox.active === "main" ? "text-emerald-400" : "text-amber-400";
+    const count = sandbox.active === "main" ? sandbox.main.length : sandbox.feature.commits.length;
+    let extra = "";
+    if (sandbox.merged) extra = " · merged into main 🎉";
+    statusEl.innerHTML = `On <span class="${branchColor} font-semibold">${sandbox.active}</span> · ${count} commit${count === 1 ? "" : "s"}${extra}`;
+  }
+
+  function refreshSandbox() {
+    drawSandbox();
+    updateSandboxButtons();
+    updateStatus();
+  }
+
+  document.querySelectorAll(".sandbox-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+
+      if (action === "commit") {
+        if (sandbox.active === "main") {
+          sandbox.main.push({ id: nextId(sandbox.main) });
+        } else if (sandbox.feature) {
+          sandbox.feature.commits.push({ id: nextId([...sandbox.main, ...sandbox.feature.commits]) });
+        }
+      }
+
+      if (action === "branch" && !sandbox.feature) {
+        sandbox.feature = { fromIndex: sandbox.main.length - 1, commits: [] };
+        sandbox.active = "feature";
+        sandbox.merged = false;
+      }
+
+      if (action === "checkout-main") sandbox.active = "main";
+      if (action === "checkout-feature" && sandbox.feature) sandbox.active = "feature";
+
+      if (action === "merge" && sandbox.feature && sandbox.feature.commits.length > 0 && !sandbox.merged) {
+        sandbox.main.push({ id: nextId(sandbox.main) });
+        sandbox.merged = true;
+      }
+
+      if (action === "reset") {
+        sandbox.main = [{ id: "c1" }];
+        sandbox.feature = null;
+        sandbox.active = "main";
+        sandbox.merged = false;
+      }
+
+      refreshSandbox();
+    });
+  });
+
+  refreshSandbox();
+})();
+</script>
+</body>
+</html>

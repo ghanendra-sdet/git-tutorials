@@ -14,6 +14,22 @@ description: "Staging, commits, branching, and merging — the core loop you'll 
 
 </div>
 
+<div class="callout callout-concept" markdown="1">
+
+**By the end of this module you will be able to:**
+
+✓ Explain why Git has a staging area at all, not just "what it does"
+✓ Stage exactly the changes you want, even out of a messy working directory
+✓ Write commit messages your future self will actually thank you for
+✓ Create, switch, and merge branches — the loop you'll run dozens of times a day
+✓ Use `git stash` to context-switch without committing half-finished work
+
+</div>
+
+> [!TIP]
+> Still have `~/git-playground` from [Module 00](../00-introduction/#-set-up-your-safe-sandbox)?
+> Use it. Every Try It block below assumes a real terminal, not just reading along.
+
 ---
 
 ## 📑 In This Module
@@ -50,6 +66,20 @@ Untracked files:
 
 **Untracked** = "Git sees this file exists, but has zero interest in it until you tell it
 otherwise." This is a feature, not Git being lazy.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+echo "console.log('hello world')" > app.js
+git status
+```
+
+**What should I see?** `app.js` listed under "Untracked files," with Git explicitly suggesting
+`git add` — not an error, just Git telling you exactly what to do next.
+
+</div>
 
 ---
 
@@ -118,6 +148,50 @@ git reset file.txt        # UN-stage a file (doesn't touch its actual content �
 > accidentally left a `console.log('here')` debug line in the same file, and want to commit only
 > the fix.
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+echo "fix bug" >> login.js
+echo "new feature" >> signup.js
+git add login.js
+git status
+```
+
+**What should I see?** `login.js` under "Changes to be committed," `signup.js` still sitting
+under "Changes not staged for commit" — proof the staging area really does let you pick exactly
+what goes in, even when more than one file changed.
+
+</div>
+
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN**
+
+You have two modified files: `login.js` and `signup.js`. Stage **only** `signup.js`, confirm it
+with `git status`, then **unstage** it again without touching its actual content. Can you do it
+without looking at the solution first?
+
+<details>
+<summary>💡 Show solution</summary>
+
+```bash
+git add signup.js
+git status                 # signup.js now under "Changes to be committed"
+git reset signup.js
+git status                 # signup.js back under "Changes not staged" — content untouched
+```
+
+`git reset <file>` (no flags, just a filename) only moves a file *out of the box* — it never
+discards the edit itself. That distinction matters a lot more once you hit
+[Module 04](../04-undo-and-recovery/), where `reset` can also discard real work if you're not
+careful with it.
+
+</details>
+
+</div>
+
 ---
 
 ## ✅ Commit
@@ -157,6 +231,32 @@ The convention `type: description` (feat/fix/refactor/docs/test/chore) isn't req
 itself, but it's so widely adopted that `git log --oneline --grep="fix:"` instantly showing every
 bug fix in your project's history is now basically an industry standard trick.
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+git commit -m "fix: login validation bug"
+git log --oneline -1
+```
+
+**What should I see?** A one-line confirmation from `git commit` (branch, short hash, file stats),
+then that same commit as a single line from `git log`.
+
+</div>
+
+<div class="callout callout-mistake" markdown="1">
+
+**🚨 COMMON MISTAKE**
+
+Committing "today's work" as one giant commit at the end of the day. It feels efficient in the
+moment and is genuinely painful later — `git revert` (Module 04) undoes *one commit*, so a
+50-file mega-commit means reverting the one real bug inside it also reverts 49 unrelated changes
+you didn't want touched. Small, focused commits aren't a style preference; they're what makes
+every later Git operation (revert, cherry-pick, bisect) actually usable.
+
+</div>
+
 ---
 
 ## 📜 History
@@ -183,6 +283,21 @@ without asking anyone or guessing.
 git log -p --follow -- path/to/file.js
 ```
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+git log --oneline
+git log --graph --oneline --all
+```
+
+**What should I see?** The same commits, but the second command draws them as a small ASCII
+tree. On one branch with no merges yet it'll look like a straight line — that's expected. It gets
+genuinely useful once branches exist, a few sections from now.
+
+</div>
+
 ---
 
 ## 🏷️ Tagging
@@ -203,6 +318,21 @@ If commits are diary entries, a tag is a bookmark that says **"this specific pag
 shipped to customers as Version 2.0."** Branches move forward constantly; tags don't move at all
 — once set, `v1.0.0` always points at the exact same commit, forever, so you can always answer
 "what code was actually in production on release day" with certainty.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+git tag -a v0.1.0 -m "First playground milestone"
+git tag
+git show v0.1.0
+```
+
+**What should I see?** `v0.1.0` listed by `git tag`, and `git show` printing the tag's own
+message plus the full commit it points at.
+
+</div>
 
 ---
 
@@ -231,6 +361,36 @@ git stash push -m "half-done payment form"  # stash WITH a note, for when you'll
 > `git stash pop` can conflict if the branch has changed since you stashed — Git will tell you
 > clearly if this happens, don't panic, it's the same conflict-resolution process as a merge
 > conflict (covered below).
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+echo "half-done work" >> login.js
+git status            # shows login.js modified
+git stash
+git status            # clean — login.js looks untouched
+git stash pop
+git status            # the change is back
+```
+
+**What should I see?** `git status` reporting a clean working directory right after `stash`, then
+the exact same modification reappearing after `pop` — nothing was lost, it was just parked.
+
+</div>
+
+<div class="callout callout-sdet" markdown="1">
+
+**🧪 SDET SCENARIO**
+
+You're mid-way through writing a new Playwright test, it's not passing yet, and a flaky test in
+CI just paged you to investigate *right now*. You can't commit broken, half-finished test code —
+but you also can't lose 40 minutes of locator work. `git stash`, switch branches, debug the
+flaky test, fix it, switch back, `git stash pop`, and you're exactly where you left off. This is
+the single most common real reason test engineers reach for stash.
+
+</div>
 
 ---
 
@@ -275,6 +435,46 @@ git branch -D feature/checkout    # force-delete (no safety check — know what 
 > branch per feature, per bug fix, per experiment) in a way that would've been unthinkably slow in
 > older version control systems.
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+git switch -c feature/login
+git branch
+```
+
+**What should I see?** `feature/login` listed with a `*` next to it, confirming you're now on
+the new branch — `main` is still exactly where you left it.
+
+</div>
+
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN**
+
+You're currently on `feature/login`. Create a second branch called `feature/payment`, make one
+commit on it (any trivial change), then switch back to `main`. Do NOT look at the solution first.
+
+<details>
+<summary>💡 Show solution</summary>
+
+```bash
+git switch -c feature/payment
+echo "payment stub" >> payment.js
+git add payment.js
+git commit -m "feat: stub out payment module"
+git switch main
+```
+
+Run `git log --oneline --graph --all` afterward — you'll see `main`, `feature/login`, and
+`feature/payment` as three separate pointers, with `feature/payment` one commit ahead of where
+it branched off.
+
+</details>
+
+</div>
+
 ---
 
 ## 🔀 Merge
@@ -314,6 +514,30 @@ one final document (three-way merge) — and if both edited the *exact same sent
 that's a **merge conflict**, which needs a human to decide. (Full conflict-resolution workflow is
 in [Module 05](../05-advanced-git/).)
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+git switch main
+git merge feature/login
+git log --oneline --graph --all
+```
+
+**What should I see?** Since `main` hasn't moved since you branched, this is a **fast-forward** —
+no merge commit, `main`'s pointer just catches up to `feature/login`'s latest commit.
+
+</div>
+
+<details>
+<summary>🧠 <strong>Quick Check:</strong> If you'd made a NEW commit directly on <code>main</code> before merging <code>feature/login</code> in, would this still be a fast-forward?</summary>
+
+No — the moment `main` has a commit `feature/login` doesn't know about, Git can't just "catch up"
+a pointer anymore. It has to combine two divergent histories, which means a three-way merge and a
+dedicated merge commit, even if there's no actual conflict between the changes.
+
+</details>
+
 ---
 
 ## 🔁 Workflow — Putting It All Together
@@ -350,6 +574,41 @@ git branch -d feature/add-dark-mode
 That's genuinely most of Git, in one loop. Everything else in this course is either a variation
 on this loop (Module 02's GitHub push/pull), a safety net for when it goes wrong (Module 04), or
 a specialization for specific situations (Module 05).
+
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN — Run the whole loop yourself**
+
+In `~/git-playground`, from `main`:
+
+1. Create a branch called `feature/dark-mode`
+2. Make two separate, small commits on it (anything — even two one-line `echo` changes to
+   different files)
+3. Switch back to `main` and merge it in
+4. Delete the now-merged branch
+
+Do all four steps without looking at the solution first — this is the exact loop you'll run for
+the rest of your career, so it's worth getting your fingers to do it without thinking.
+
+<details>
+<summary>💡 Show solution</summary>
+
+```bash
+git switch -c feature/dark-mode
+echo "dark mode css" >> styles.css
+git add styles.css
+git commit -m "feat: add dark mode styles"
+echo "dark mode toggle" >> settings.js
+git add settings.js
+git commit -m "feat: add dark mode toggle"
+git switch main
+git merge feature/dark-mode
+git branch -d feature/dark-mode
+```
+
+</details>
+
+</div>
 
 ---
 
@@ -399,6 +658,18 @@ a specialization for specific situations (Module 05).
 
 If #3 didn't immediately bring "`git stash`" to mind, that's worth a re-read of that section —
 it's one of the most practically useful commands in this entire module.
+
+<div class="callout callout-remember" markdown="1">
+
+**🧠 You can now:**
+
+✓ Explain why the staging area exists, not just recite what it does
+✓ Stage exactly the changes you want, chunk by chunk if needed
+✓ Write commit messages that'll still make sense to you in six months
+✓ Create, switch, merge, and delete branches — the daily loop
+✓ Shelve half-finished work with `git stash` without committing it
+
+</div>
 
 ---
 

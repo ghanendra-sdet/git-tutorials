@@ -10,6 +10,20 @@
   var prefersReducedMotion = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // The real Jekyll baseurl ("" locally, "/git-tutorials" on GitHub Pages),
+  // rendered server-side into a data attribute — never guessed from the URL.
+  // Guessing "drop the first path segment" breaks the moment the site isn't
+  // served under a subpath, which is exactly what a local `jekyll serve`
+  // without --baseurl does.
+  function getBaseUrl() {
+    var raw = (document.body.dataset.baseurl || "").replace(/\/$/, "");
+    return raw;
+  }
+  function stripBaseUrl(pathname) {
+    var base = getBaseUrl();
+    return base && pathname.indexOf(base) === 0 ? pathname.slice(base.length) : pathname;
+  }
+
   /* ========================================================================
      1. THEME — light / dark / system, persisted, manual toggle
      ======================================================================== */
@@ -198,20 +212,21 @@
         Git Tutorials -> Module 01 - Git Fundamentals
      ======================================================================== */
   function titleFromSlug(slug) {
-    var withoutNum = slug.replace(/^\d+-/, "");
+    var withoutExt = slug.replace(/\.(html?|md)$/i, "");
+    var withoutNum = withoutExt.replace(/^\d+-/, "");
     var words = withoutNum.split("-").map(function (w) {
       return w.charAt(0).toUpperCase() + w.slice(1);
     });
-    var numMatch = /^(\d+)-/.exec(slug);
+    var numMatch = /^(\d+)-/.exec(withoutExt);
     return (numMatch ? numMatch[1] + " · " : "") + words.join(" ");
   }
 
   function initBreadcrumbs() {
     var h1 = document.querySelector(".page-content h1, main h1");
     if (!h1) return;
-    var parts = window.location.pathname.split("/").filter(Boolean);
-    // parts[0] is the repo name on Pages (e.g. "git-tutorials") — drop it.
-    var segments = parts.slice(1).filter(function (p) { return p !== "index.html"; });
+    var pathname = stripBaseUrl(window.location.pathname);
+    var parts = pathname.split("/").filter(Boolean);
+    var segments = parts.filter(function (p) { return p !== "index.html"; });
     if (segments.length === 0) return; // already on the home page
 
     var nav = document.createElement("nav");
@@ -219,7 +234,7 @@
     nav.setAttribute("aria-label", "Breadcrumb");
 
     var home = document.createElement("a");
-    home.href = "/" + parts[0] + "/";
+    home.href = getBaseUrl() + "/";
     home.textContent = "🏠 Git Tutorials";
     nav.appendChild(home);
 
@@ -237,7 +252,7 @@
         nav.appendChild(current);
       } else {
         var link = document.createElement("a");
-        link.href = "/" + parts.slice(0, i + 2).join("/") + "/";
+        link.href = getBaseUrl() + "/" + parts.slice(0, i + 1).join("/") + "/";
         link.textContent = titleFromSlug(seg);
         nav.appendChild(link);
       }
@@ -250,14 +265,14 @@
      6. AUTO TABLE OF CONTENTS for long pages
      ======================================================================== */
   function initTOC() {
+    var mount = document.getElementById("toc-sidebar-mount");
     var content = document.querySelector(".page-content") || document.querySelector("main");
-    if (!content) return;
+    if (!mount || !content) return;
     var headings = Array.prototype.slice.call(content.querySelectorAll("h2, h3"));
-    if (headings.length < 4) return; // short pages don't need one
+    if (headings.length < 4) return; // short pages don't need one — mount stays empty, CSS hides it
 
     var details = document.createElement("details");
     details.className = "toc-box";
-    details.setAttribute("data-sticky", "true");
     details.open = true;
     var summary = document.createElement("summary");
     summary.textContent = "On this page";
@@ -277,11 +292,7 @@
       linkById[h.id] = a;
     });
     details.appendChild(list);
-
-    var h1 = content.querySelector("h1");
-    var insertBefore = h1 && h1.nextElementSibling;
-    if (insertBefore) insertBefore.parentNode.insertBefore(details, insertBefore);
-    else content.insertBefore(details, content.firstChild);
+    mount.appendChild(details);
 
     if ("IntersectionObserver" in window) {
       var observer = new IntersectionObserver(function (entries) {
@@ -300,13 +311,14 @@
         [carried over from the previous head-custom.html inline script]
      ======================================================================== */
   function externalLinksNewTab() {
-    var repoBase = location.pathname.split("/").slice(0, 2).join("/");
+    var repoBase = getBaseUrl();
     document.querySelectorAll("a[href]").forEach(function (a) {
       var href = a.getAttribute("href");
       if (!/^https?:\/\//i.test(href)) return;
       try {
         var url = new URL(href, location.href);
-        var isSameRepo = url.origin === location.origin && url.pathname.indexOf(repoBase + "/") === 0;
+        var isSameRepo = url.origin === location.origin &&
+          (repoBase ? url.pathname.indexOf(repoBase + "/") === 0 : true);
         if (!isSameRepo) {
           a.setAttribute("target", "_blank");
           a.setAttribute("rel", "noopener noreferrer");
@@ -364,8 +376,8 @@
       this.write(data);
     },
     recordCurrentPage: function () {
-      var parts = location.pathname.split("/").filter(Boolean);
-      var slug = parts[1];
+      var parts = stripBaseUrl(location.pathname).split("/").filter(Boolean);
+      var slug = parts[0];
       if (slug && MODULES.some(function (m) { return m.slug === slug; })) {
         this.markVisited(slug);
       }

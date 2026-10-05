@@ -1,0 +1,362 @@
+/* ==========================================================================
+   GIT Tutorials — Design System
+   Modern + Technical + Friendly + Educational. Not a marketing site.
+   Light/dark tokens, callout components, nav chrome, accessibility.
+   ========================================================================== */
+
+/* -------------------------------------------------------------------------
+   1. Color tokens — light (default) and dark
+   ------------------------------------------------------------------------- */
+:root {
+  --color-primary: #2563eb;
+  --color-primary-strong: #1d4ed8;
+  --color-success: #16a34a;
+  --color-success-bg: #d4edda;
+  --color-warning: #d97706;
+  --color-warning-bg: #fff3cd;
+  --color-danger: #dc2626;
+  --color-danger-bg: #ffe2e2;
+  --color-info: #0891b2;
+  --color-info-bg: #cfe2ff;
+  --color-purple: #7c3aed;
+  --color-purple-bg: #ede9fe;
+
+  --color-bg: #ffffff;
+  --color-surface: #f6f8fa;
+  --color-surface-raised: #ffffff;
+  --color-text: #1f2328;
+  --color-muted: #57606a;
+  --color-border: #d0d7de;
+  --color-code-bg: #f6f8fa;
+  --color-link: #0969da;
+
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0d1117;
+    --color-surface: #161b22;
+    --color-surface-raised: #1c222b;
+    --color-text: #e6edf3;
+    --color-muted: #9198a1;
+    --color-border: #30363d;
+    --color-code-bg: #161b22;
+    --color-link: #58a6ff;
+
+    --color-success-bg: #10351f;
+    --color-warning-bg: #3a2c05;
+    --color-danger-bg: #3a0d0d;
+    --color-info-bg: #0d2a3d;
+    --color-purple-bg: #251a40;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #0d1117;
+  --color-surface: #161b22;
+  --color-surface-raised: #1c222b;
+  --color-text: #e6edf3;
+  --color-muted: #9198a1;
+  --color-border: #30363d;
+  --color-code-bg: #161b22;
+  --color-link: #58a6ff;
+
+  --color-success-bg: #10351f;
+  --color-warning-bg: #3a2c05;
+  --color-danger-bg: #3a0d0d;
+  --color-info-bg: #0d2a3d;
+  --color-purple-bg: #251a40;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* -------------------------------------------------------------------------
+   2. Base — apply tokens to the minima-rendered page without fighting it
+   ------------------------------------------------------------------------- */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.page-content, .wrapper { background-color: var(--color-bg); }
+
+a { color: var(--color-link); }
+
+pre, code { background-color: var(--color-code-bg) !important; }
+
+table { border-color: var(--color-border); }
+table th, table td { border-color: var(--color-border) !important; color: var(--color-text); }
+table th { background-color: var(--color-surface) !important; }
+table tr:nth-child(2n) { background-color: var(--color-surface) !important; }
+
+hr { border-color: var(--color-border); }
+
+.site-header, .site-footer {
+  background-color: var(--color-surface);
+  border-color: var(--color-border) !important;
+}
+.site-title, .site-title:visited { color: var(--color-text) !important; }
+.site-nav .page-link { color: var(--color-text) !important; }
+
+details summary { cursor: pointer; }
+
+/* -------------------------------------------------------------------------
+   3. Callout components
+   One visual language for every colored box in the course. Icon + label are
+   never the only signal — each type also has a distinct text label.
+   ------------------------------------------------------------------------- */
+.callout {
+  margin: 1.25em 0;
+  padding: 1em 1.1em;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  border-left-width: 4px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.55em;
+}
+
+.callout-concept   { border-left-color: var(--color-info);    background: var(--color-info-bg); }
+.callout-important { border-left-color: var(--color-danger);  background: var(--color-danger-bg); }
+.callout-protip     { border-left-color: var(--color-primary); background: var(--color-info-bg); }
+.callout-mistake   { border-left-color: var(--color-warning); background: var(--color-warning-bg); }
+.callout-tryit      { border-left-color: var(--color-success); background: var(--color-success-bg); }
+.callout-challenge { border-left-color: var(--color-purple);  background: var(--color-purple-bg); }
+.callout-remember  { border-left-color: var(--color-purple);  background: var(--color-purple-bg); }
+.callout-recovery  { border-left-color: var(--color-success); background: var(--color-success-bg); }
+.callout-realworld { border-left-color: var(--color-muted);   background: var(--color-surface); }
+.callout-sdet      { border-left-color: var(--color-primary); background: var(--color-info-bg); }
+
+/* Upgraded native GitHub alerts ([!NOTE] etc.) — same visual family */
+.gfm-alert { border-left-width: 4px; }
+.gfm-alert-note      { border-left-color: var(--color-info);    background: var(--color-info-bg); }
+.gfm-alert-tip       { border-left-color: var(--color-success); background: var(--color-success-bg); }
+.gfm-alert-important { border-left-color: var(--color-purple);  background: var(--color-purple-bg); }
+.gfm-alert-warning   { border-left-color: var(--color-warning); background: var(--color-warning-bg); }
+.gfm-alert-caution    { border-left-color: var(--color-danger); background: var(--color-danger-bg); }
+
+/* -------------------------------------------------------------------------
+   4. Code blocks — copy button
+   ------------------------------------------------------------------------- */
+.code-block-wrap { position: relative; }
+.copy-btn {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  z-index: 2;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0.35em 0.6em;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.code-block-wrap:hover .copy-btn,
+.code-block-wrap:focus-within .copy-btn,
+.copy-btn:focus-visible {
+  opacity: 1;
+}
+.copy-btn:hover { color: var(--color-primary); border-color: var(--color-primary); }
+.copy-btn[data-copied="true"] { color: var(--color-success); border-color: var(--color-success); opacity: 1; }
+
+@media (max-width: 600px) {
+  /* Touch devices have no hover — keep the button always visible */
+  .copy-btn { opacity: 1; }
+}
+
+/* -------------------------------------------------------------------------
+   5. Destructive-command warning badge
+   ------------------------------------------------------------------------- */
+.danger-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--color-danger);
+  padding: 0.25em 0.6em;
+  border-radius: 999px;
+  margin-bottom: 0.5em;
+}
+
+/* -------------------------------------------------------------------------
+   6. Site chrome — theme toggle, back-to-top, breadcrumbs, TOC
+   ------------------------------------------------------------------------- */
+.chrome-btn {
+  position: fixed;
+  z-index: 50;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  font-size: 1.05rem;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.chrome-btn:hover { transform: translateY(-2px); }
+
+#theme-toggle-btn { bottom: 1.25rem; right: 1.25rem; }
+
+#back-to-top-btn {
+  bottom: 1.25rem;
+  right: 4.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+#back-to-top-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.breadcrumb-nav {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin: 0 0 1.25em 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  align-items: center;
+}
+.breadcrumb-nav a { color: var(--color-muted); text-decoration: none; }
+.breadcrumb-nav a:hover { color: var(--color-link); text-decoration: underline; }
+.breadcrumb-nav .sep { opacity: 0.6; }
+.breadcrumb-nav .current { color: var(--color-text); font-weight: 600; }
+
+.toc-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.9em 1.1em;
+  margin: 1.5em 0;
+  font-size: 0.88rem;
+}
+.toc-box summary {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.toc-box ul { margin: 0.75em 0 0 0; padding-left: 1.1em; }
+.toc-box li { margin: 0.3em 0; }
+.toc-box a { color: var(--color-text); text-decoration: none; }
+.toc-box a:hover { color: var(--color-link); text-decoration: underline; }
+.toc-box a.active { color: var(--color-primary); font-weight: 600; }
+
+@media (min-width: 1100px) {
+  .toc-box[data-sticky="true"] {
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   7. Progress tracker (home page)
+   ------------------------------------------------------------------------- */
+.progress-tracker { margin: 1.5em 0; }
+.progress-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0.5em 0;
+  font-size: 0.85rem;
+}
+.progress-row .progress-label { display: flex; align-items: center; gap: 0.5em; }
+.progress-row .progress-label a { color: var(--color-text); text-decoration: none; }
+.progress-row .progress-label a:hover { text-decoration: underline; }
+.progress-track {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+.progress-check { color: var(--color-success); font-weight: 700; }
+.progress-reset-btn {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.3em 0.7em;
+  cursor: pointer;
+}
+.progress-reset-btn:hover { color: var(--color-danger); border-color: var(--color-danger); }
+
+/* -------------------------------------------------------------------------
+   8. Accessibility
+   ------------------------------------------------------------------------- */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------
+   9. Mobile
+   ------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  #back-to-top-btn { right: 1.25rem; bottom: 4.25rem; }
+  .chrome-btn { width: 38px; height: 38px; font-size: 0.95rem; }
+}
+
+/* Mermaid diagrams readable in dark mode (mermaid itself is re-initialized
+   with the matching theme by custom.js — this just prevents a white flash
+   while it loads) */
+pre.mermaid { background: transparent; }

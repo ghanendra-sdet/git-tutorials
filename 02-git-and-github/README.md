@@ -14,6 +14,24 @@ description: "SSH keys, remotes, push/pull, GitHub Flow, and GitHub Pages — wh
 
 </div>
 
+<div class="callout callout-concept" markdown="1">
+
+**By the end of this module you will be able to:**
+
+✓ Authenticate to GitHub with SSH instead of typing a password every time
+✓ Connect a local repo to a real GitHub repo and push to it
+✓ Explain the actual difference between `fetch` and `pull` — and why cautious people fetch first
+✓ Push a branch and know what happens to it on GitHub's side
+✓ Describe GitHub Flow well enough to follow it on a real team
+
+</div>
+
+> [!NOTE]
+> Unlike Modules 00–01, the Try It blocks below need a **real, free GitHub account** and (for the
+> push/pull ones) an empty repo you created on github.com — this module is specifically about
+> talking to the internet, so there's no way around that. Nothing here touches real production
+> code; create a throwaway repo, same spirit as `~/git-playground`.
+
 ---
 
 ## 📑 In This Module
@@ -88,6 +106,20 @@ ssh -T git@github.com
 > anywhere but your own machine) and `id_ed25519.pub` (public — this is the one that's safe to
 > give to GitHub). Mixing these up is a genuine security incident, not a typo.
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+```bash
+ls -la ~/.ssh
+```
+
+**What should I see?** If you see `id_ed25519` and `id_ed25519.pub` (or an `id_rsa` pair from an
+older setup), you already have a key and can skip straight to adding the `.pub` one to GitHub.
+If the folder doesn't exist or is empty, run the `ssh-keygen` command above first.
+
+</div>
+
 ---
 
 ## 🔗 Set Remote
@@ -114,6 +146,24 @@ git remote remove origin
 `origin` is just a **name** for the remote — a convention, not a keyword. You could name it
 `banana` and Git wouldn't care. Everyone calls it `origin` because everyone else does, which is
 its own kind of consistency worth keeping.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+1. On github.com, create a new **empty** repository (no README, no .gitignore — genuinely empty)
+2. Copy its SSH URL (the green "Code" button → SSH tab)
+
+```bash
+cd ~/git-playground
+git remote add origin git@github.com:yourusername/your-repo-name.git
+git remote -v
+```
+
+**What should I see?** Two lines back from `git remote -v` — `origin` listed for both fetch and
+push, pointing at the repo you just created.
+
+</div>
 
 ---
 
@@ -161,6 +211,20 @@ graph LR
 > teammate's just-pushed work. `git push --force-with-lease` is the safer version: it refuses to
 > push if the remote has changes you haven't seen yet, instead of blindly overwriting.
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (using the `origin` you set up above)
+
+```bash
+git push -u origin main
+```
+
+**What should I see?** Git prints upload progress, then confirms `main -> main` with the
+upstream now set. Refresh the repo's page on github.com — your commits from Modules 00–01 are
+now visible there, publicly (or privately, if you made the repo private).
+
+</div>
+
 ---
 
 ## ⬇️ Pull from GitHub
@@ -182,6 +246,33 @@ cabinet, grabbing those new pages, AND immediately filing them into your own not
 right place. `git fetch` alone is just "go look at the cabinet and see what's new" — without
 touching your own notebook yet. Cautious people `fetch` first, review, then `merge` or `pull`.
 
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN**
+
+Make a small edit directly on GitHub's web editor (press `.` on your repo, edit a file, commit)
+— *without* touching your local clone. Then, locally, run `git fetch origin` followed by
+`git log origin/main`. Can you see that remote commit before running `git pull`? What does that
+prove about what `fetch` actually does?
+
+<details>
+<summary>💡 Show solution</summary>
+
+```bash
+git fetch origin
+git log origin/main -1     # the web-editor commit shows up here already
+git log main -1            # your LOCAL main still doesn't have it
+git pull origin main       # now it does
+```
+
+This proves `fetch` genuinely downloads the data without touching your working branch —
+`origin/main` and `main` are two separate references, and only `merge` (or `pull`, which runs it
+for you) moves your local branch forward.
+
+</details>
+
+</div>
+
 ---
 
 ## 🌿 GitHub Branch — Push/Pull a Branch
@@ -199,6 +290,24 @@ git checkout feature/their-branch
 
 Once pushed, that branch is visible to your whole team on GitHub — anyone can view its diff,
 comment on it, or open a **pull request** from it (Module 03 goes deep on this).
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+```bash
+git checkout -b feature/new-navbar
+echo "navbar stub" >> navbar.js
+git add navbar.js
+git commit -m "feat: stub out new navbar"
+git push -u origin feature/new-navbar
+```
+
+**What should I see?** GitHub's output includes a direct link to open a pull request for the
+branch you just pushed — and refreshing the repo's "Branches" page on github.com shows it listed
+there, separate from `main`.
+
+</div>
 
 ---
 
@@ -230,6 +339,17 @@ flowchart LR
 It's deliberately simpler than Git Flow (an older model with `develop`, `release/*`, `hotfix/*`
 branches) — GitHub Flow assumes you can deploy frequently and safely, which most modern teams with
 good CI/CD can.
+
+<div class="callout callout-sdet" markdown="1">
+
+**🧪 SDET SCENARIO**
+
+In a real automation repo, step 4 ("CI passes") is almost always your test suite — a pull request
+against `main` triggers a GitHub Actions run of the full Playwright/Selenium suite automatically
+(Module 05 covers the actual YAML for this). Opening the PR as a Draft early, per step 3, means
+you find out your new test is flaky in CI *before* a reviewer looks at it, not after.
+
+</div>
 
 ---
 
@@ -297,6 +417,18 @@ developers use a GUI daily once they already understand what's happening underne
 If #3 surprised you, that's the most commonly-missed point in this whole module — opening a PR
 early (as a Draft) is a feature, not a mistake, because it makes your in-progress work visible for
 early feedback instead of a surprise 400-line diff at the end.
+
+<div class="callout callout-remember" markdown="1">
+
+**🧠 You can now:**
+
+✓ Authenticate to GitHub over SSH instead of a password every time
+✓ Connect a local repo to GitHub and push real commits to it
+✓ Tell `fetch` and `pull` apart, and know why cautious people fetch first
+✓ Push a branch and find it on GitHub, ready for a pull request
+✓ Follow GitHub Flow on a real team without needing it explained again
+
+</div>
 
 ---
 

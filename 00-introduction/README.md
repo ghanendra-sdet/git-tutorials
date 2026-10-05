@@ -1,3 +1,8 @@
+---
+title: "Module 00 — Introduction & Setup"
+description: "What version control actually is, installing Git, and the one-time config that saves you from a confusing commit history."
+---
+
 <div align="center" markdown="1">
 
 # 🏠 Module 00 — Introduction & Setup

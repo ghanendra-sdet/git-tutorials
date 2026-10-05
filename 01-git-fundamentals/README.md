@@ -1,3 +1,8 @@
+---
+title: "Module 01 — Git Fundamentals"
+description: "Staging, commits, branching, and merging — the core loop you'll run hundreds of times a week, with hands-on labs for every concept."
+---
+
 <div align="center" markdown="1">
 
 # 🧬 Module 01 — Git Fundamentals

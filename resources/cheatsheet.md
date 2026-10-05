@@ -1,3 +1,8 @@
+---
+title: "Git Cheatsheet"
+description: "A flat, one-page Git command reference — for when you already know the command and just blanked on the flag."
+---
+
 <div align="center" markdown="1">
 
 # 📖 Git Cheatsheet — One-Page Reference

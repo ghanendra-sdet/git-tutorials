@@ -1,3 +1,8 @@
+---
+title: "Module 07 — Exercises & Study Plan"
+description: "Progressive exercises, a capstone Git Mastery Challenge, and a 20-question quiz bank — where reading turns into muscle memory."
+---
+
 <div align="center" markdown="1">
 
 # 🏁 Module 07 — Exercises & Study Plan (Capstone)

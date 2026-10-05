@@ -1,3 +1,8 @@
+---
+title: "Module 03 — Contributing to Open Source"
+description: "Fork, clone, branch, pull request — the exact sequence behind every open-source contribution you've ever seen on GitHub."
+---
+
 <div align="center" markdown="1">
 
 # 🤝 Module 03 — Contributing to Open Source

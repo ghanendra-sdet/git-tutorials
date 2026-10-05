@@ -1,3 +1,8 @@
+---
+title: "Module 02 — Git + GitHub"
+description: "SSH keys, remotes, push/pull, GitHub Flow, and GitHub Pages — where Git on your laptop becomes Git the internet can see."
+---
+
 <div align="center" markdown="1">
 
 # 🌐 Module 02 — Git + GitHub

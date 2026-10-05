@@ -1,3 +1,8 @@
+---
+title: "Module 06 — Certification Prep"
+description: "A structured review pass across every module, framed as certification-style, scenario-based practice."
+---
+
 <div align="center" markdown="1">
 
 # 🎓 Module 06 — Certification Prep

@@ -1,3 +1,8 @@
+---
+title: "Module 04 — Undo & Recovery"
+description: "Revert, reset, amend, rebase, and reflog — plus hands-on disaster labs for every 'I think I just lost three days of work' scenario."
+---
+
 <div align="center" markdown="1">
 
 # ↩️ Module 04 — Undo & Recovery

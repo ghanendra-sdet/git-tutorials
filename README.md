@@ -1,3 +1,8 @@
+---
+title: "GIT Tutorials"
+description: "A free, hands-on Git + GitHub course. Learn → See → Do → Break → Fix → Remember, with real commands, real recovery labs, and zero corporate-training energy."
+---
+
 <div align="center" markdown="1">
 
 # 🐙 GIT Tutorials — From `git init` to "wait, how do I undo this"

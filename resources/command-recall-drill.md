@@ -1,3 +1,8 @@
+---
+title: "Command Recall Drill"
+description: "Scenario-based, fold-to-reveal Git command drills across every module — spaced-repetition practice, not a reading list."
+---
+
 <div align="center" markdown="1">
 
 # 🧠 Command Recall Drill

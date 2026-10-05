@@ -1,3 +1,8 @@
+---
+title: "Module 05 — Advanced Git"
+description: ".gitignore/.gitattributes, LFS, signed commits, cherry-picking, merge conflict resolution, CI/CD, hooks, submodules, and git bisect."
+---
+
 <div align="center" markdown="1">
 
 # 🚀 Module 05 — Advanced Git

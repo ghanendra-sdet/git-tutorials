@@ -14,6 +14,17 @@ description: "Fork, clone, branch, pull request — the exact sequence behind ev
 
 </div>
 
+<div class="callout callout-concept" markdown="1">
+
+**By the end of this module you will be able to:**
+
+✓ Fork a repository and explain what that actually created
+✓ Keep your fork in sync with the original project (`origin` vs. `upstream`)
+✓ Open a pull request that's likely to get merged quickly
+✓ Find a genuinely beginner-friendly issue to contribute to, today
+
+</div>
+
 ---
 
 ## 📑 In This Module
@@ -43,6 +54,18 @@ On GitHub: open the repo you want to contribute to → click **Fork** (top right
 You do **not** have push access to the original repo — that's the entire point of forking. It's
 how strangers on the internet can propose changes to projects they don't have write access to,
 without any risk to the original.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+Pick any small public repo on GitHub (even this `git-tutorials` repo works fine for practice) and
+click **Fork** (top right). That's the whole action — no terminal needed yet.
+
+**What should I see?** A new repo under *your* account, named the same thing, with "forked from"
+and a link back to the original shown right under the repo name.
+
+</div>
 
 ---
 
@@ -77,6 +100,33 @@ git checkout main
 git merge upstream/main
 git push origin main    # update YOUR fork's copy on GitHub too
 ```
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (using the fork you just created)
+
+```bash
+git clone git@github.com:yourusername/your-fork-name.git
+cd your-fork-name
+git remote add upstream <the-original-repo's-SSH-url>
+git remote -v
+```
+
+**What should I see?** `origin` pointing at your fork, `upstream` pointing at the original — four
+lines total from `git remote -v` (fetch + push for each).
+
+</div>
+
+<details>
+<summary>🧠 <strong>Quick Check:</strong> You accidentally run <code>git push upstream main</code> instead of <code>git push origin main</code>. What happens?</summary>
+
+It fails — you don't have write access to `upstream` (the original repo), which is the entire
+point of the fork workflow. This is a genuinely safe mistake to make: Git will refuse with a
+permission error, not silently do something destructive. The more dangerous version of this
+mix-up is the opposite direction — accidentally *pulling* from `origin` when you meant
+`upstream`, which doesn't error, it just silently leaves you out of sync with the real project.
+
+</details>
 
 ---
 
@@ -124,6 +174,27 @@ Ran the corrected command on a fresh clone — build script now completes succes
 > that "also refactored some other stuff while I was in there" makes the maintainer's job much
 > harder, and sits unreviewed far longer. If you notice something else worth fixing, that's a
 > **second** PR, not scope creep on the first one.
+
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN — Your first real contribution**
+
+Using the fork you set up above (any public repo, including this one): find one genuinely small,
+real thing worth fixing — a typo, a broken link, an outdated command — make the fix on a properly
+named branch, push it to `origin`, and open the pull request. This is a real PR, not a drill.
+
+<details>
+<summary>💡 Not sure where to find something to fix?</summary>
+
+Search GitHub for issues labeled `good first issue` across any language you're comfortable in
+(or check [goodfirstissue.dev](https://goodfirstissue.dev/)). If genuinely nothing jumps out, even
+fixing a typo in this course's own docs and opening a PR against
+[ghanendra-sdet/git-tutorials](https://github.com/ghanendra-sdet/git-tutorials) counts — the
+mechanism is identical regardless of project size.
+
+</details>
+
+</div>
 
 ---
 
@@ -181,6 +252,17 @@ from a one-line typo fix to a massive feature added to a project with a million 
 (#3: just commit the fix and push to the *same* branch — the existing PR updates automatically.
 Opening a new PR for review feedback is a surprisingly common beginner instinct, and it's
 unnecessary extra noise for the maintainer.)
+
+<div class="callout callout-remember" markdown="1">
+
+**🧠 You can now:**
+
+✓ Fork a repo and explain exactly what that did and didn't give you access to
+✓ Keep a fork in sync with the real project via `upstream`
+✓ Open a pull request that's actually likely to get reviewed and merged quickly
+✓ Find a real `good first issue` and make your first genuine open-source contribution
+
+</div>
 
 ---
 

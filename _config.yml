@@ -3,6 +3,7 @@ markdown: kramdown
 
 plugins:
   - jekyll-readme-index
+  - jekyll-relative-links
 
 # Every README.md in this repo has front matter (added for SEO titles/
 # descriptions) — the plugin ignores README files with front matter

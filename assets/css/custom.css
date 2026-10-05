@@ -1,121 +1,281 @@
 /* ==========================================================================
-   GIT Tutorials — Design System
-   Modern + Technical + Friendly + Educational. Not a marketing site.
-   Light/dark tokens, callout components, nav chrome, accessibility.
+   GIT Tutorials — Design System v2
+   Matches resources/interactive-cheatsheet.html's existing look (dark-first,
+   zinc/emerald/amber/rose, rounded cards, generous spacing) instead of
+   minima's default theme. This file now owns ALL visual styling — minima's
+   own compiled CSS is no longer linked (see _layouts/default.html).
    ========================================================================== */
 
 /* -------------------------------------------------------------------------
-   1. Color tokens — light (default) and dark
+   1. Color tokens — dark is the primary, designed palette. Light is a
+   deliberately-designed complement, not an inversion.
    ------------------------------------------------------------------------- */
 :root {
-  --color-primary: #2563eb;
-  --color-primary-strong: #1d4ed8;
-  --color-success: #16a34a;
-  --color-success-bg: #d4edda;
-  --color-warning: #d97706;
-  --color-warning-bg: #fff3cd;
-  --color-danger: #dc2626;
-  --color-danger-bg: #ffe2e2;
-  --color-info: #0891b2;
-  --color-info-bg: #cfe2ff;
-  --color-purple: #7c3aed;
-  --color-purple-bg: #ede9fe;
+  --zinc-50:  #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;
+  --zinc-950: #09090b;
 
-  --color-bg: #ffffff;
-  --color-surface: #f6f8fa;
-  --color-surface-raised: #ffffff;
-  --color-text: #1f2328;
-  --color-muted: #57606a;
-  --color-border: #d0d7de;
-  --color-code-bg: #f6f8fa;
-  --color-link: #0969da;
+  --emerald-400: #34d399;
+  --emerald-500: #10b981;
+  --emerald-600: #059669;
+  --amber-400:   #fbbf24;
+  --amber-500:   #f59e0b;
+  --amber-600:   #d97706;
+  --rose-400:    #fb7185;
+  --rose-500:    #f43f5e;
+  --rose-600:    #e11d48;
+  --sky-400:     #38bdf8;
+  --sky-500:     #0ea5e9;
+  --sky-600:     #0284c7;
+  --violet-400:  #a78bfa;
+  --violet-500:  #8b5cf6;
+  --violet-600:  #7c3aed;
 
   --radius-md: 10px;
   --radius-lg: 14px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --radius-xl: 18px;
+  --radius-full: 999px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg: #0d1117;
-    --color-surface: #161b22;
-    --color-surface-raised: #1c222b;
-    --color-text: #e6edf3;
-    --color-muted: #9198a1;
-    --color-border: #30363d;
-    --color-code-bg: #161b22;
-    --color-link: #58a6ff;
+/* Dark (default) */
+:root,
+:root[data-theme="dark"] {
+  --color-bg: var(--zinc-950);
+  --color-bg-elevated: var(--zinc-900);
+  --color-surface: rgba(39, 39, 42, 0.6);   /* zinc-800/60 */
+  --color-surface-hover: var(--zinc-900);
+  --color-border: var(--zinc-800);
+  --color-border-strong: var(--zinc-700);
+  --color-text: var(--zinc-200);
+  --color-text-strong: #ffffff;
+  --color-muted: var(--zinc-400);
+  --color-muted-2: var(--zinc-500);
+  --color-link: var(--emerald-400);
+  --color-link-hover: var(--emerald-500);
+  --color-code-bg: var(--zinc-950);
+  --color-primary: var(--emerald-500);
+  --color-primary-text: var(--zinc-950);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --scrollbar-track: var(--zinc-900);
+  --scrollbar-thumb: var(--zinc-700);
+}
 
-    --color-success-bg: #10351f;
-    --color-warning-bg: #3a2c05;
-    --color-danger-bg: #3a0d0d;
-    --color-info-bg: #0d2a3d;
-    --color-purple-bg: #251a40;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+/* Light — only when explicitly chosen (manual toggle) or system prefers it
+   AND the user hasn't manually picked dark */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-bg: #ffffff;
+    --color-bg-elevated: var(--zinc-50);
+    --color-surface: var(--zinc-50);
+    --color-surface-hover: var(--zinc-100);
+    --color-border: var(--zinc-200);
+    --color-border-strong: var(--zinc-300);
+    --color-text: var(--zinc-800);
+    --color-text-strong: var(--zinc-950);
+    --color-muted: var(--zinc-600);
+    --color-muted-2: var(--zinc-500);
+    --color-link: var(--emerald-600);
+    --color-link-hover: var(--emerald-500);
+    --color-code-bg: var(--zinc-50);
+    --color-primary: var(--emerald-600);
+    --color-primary-text: #ffffff;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --scrollbar-track: var(--zinc-100);
+    --scrollbar-thumb: var(--zinc-300);
   }
 }
 
-:root[data-theme="dark"] {
-  --color-bg: #0d1117;
-  --color-surface: #161b22;
-  --color-surface-raised: #1c222b;
-  --color-text: #e6edf3;
-  --color-muted: #9198a1;
-  --color-border: #30363d;
-  --color-code-bg: #161b22;
-  --color-link: #58a6ff;
-
-  --color-success-bg: #10351f;
-  --color-warning-bg: #3a2c05;
-  --color-danger-bg: #3a0d0d;
-  --color-info-bg: #0d2a3d;
-  --color-purple-bg: #251a40;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+:root[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-bg-elevated: var(--zinc-50);
+  --color-surface: var(--zinc-50);
+  --color-surface-hover: var(--zinc-100);
+  --color-border: var(--zinc-200);
+  --color-border-strong: var(--zinc-300);
+  --color-text: var(--zinc-800);
+  --color-text-strong: var(--zinc-950);
+  --color-muted: var(--zinc-600);
+  --color-muted-2: var(--zinc-500);
+  --color-link: var(--emerald-600);
+  --color-link-hover: var(--emerald-500);
+  --color-code-bg: var(--zinc-50);
+  --color-primary: var(--emerald-600);
+  --color-primary-text: #ffffff;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --scrollbar-track: var(--zinc-100);
+  --scrollbar-thumb: var(--zinc-300);
 }
 
 /* -------------------------------------------------------------------------
-   2. Base — apply tokens to the minima-rendered page without fighting it
+   2. Reset + base (minima's CSS is no longer loaded — this owns everything)
    ------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Sticky header is ~64px tall — without this, jumping to a #heading
+     (TOC links, "On this page", same-page anchors) lands the heading
+     flush under the header, hiding it. This offsets every anchor jump
+     so the target lands visibly below the header instead. */
+  scroll-padding-top: 5.5rem;
+}
+@media (max-width: 640px) {
+  html { scroll-padding-top: 4.5rem; }
+}
+
 body {
+  margin: 0;
   background-color: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.page-content, .wrapper { background-color: var(--color-bg); }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-full); }
 
-a { color: var(--color-link); }
+img { max-width: 100%; height: auto; }
 
-pre, code { background-color: var(--color-code-bg) !important; }
-
-table { border-color: var(--color-border); }
-table th, table td { border-color: var(--color-border) !important; color: var(--color-text); }
-table th { background-color: var(--color-surface) !important; }
-table tr:nth-child(2n) { background-color: var(--color-surface) !important; }
-
-hr { border-color: var(--color-border); }
-
-.site-header, .site-footer {
-  background-color: var(--color-surface);
-  border-color: var(--color-border) !important;
+a {
+  color: var(--color-link);
+  text-decoration: none;
 }
-.site-title, .site-title:visited { color: var(--color-text) !important; }
-.site-nav .page-link { color: var(--color-text) !important; }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
 
-details summary { cursor: pointer; }
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-strong);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 1.6em 0 0.6em;
+  scroll-margin-top: 5.5rem; /* belt-and-suspenders with html's scroll-padding-top */
+}
+@media (max-width: 640px) {
+  h1, h2, h3, h4, h5, h6 { scroll-margin-top: 4.5rem; }
+}
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.4em; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1.05rem; }
+
+p { margin: 0.9em 0; }
+ul, ol { padding-left: 1.4em; }
+li { margin: 0.35em 0; }
+
+strong { color: var(--color-text-strong); font-weight: 700; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2.2em 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  font-size: 0.92rem;
+  display: block;
+  overflow-x: auto;
+}
+th, td {
+  border: 1px solid var(--color-border);
+  padding: 0.55em 0.8em;
+  text-align: left;
+  vertical-align: top;
+}
+th {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-strong);
+  font-weight: 700;
+}
+tr:nth-child(2n) td { background: rgba(255, 255, 255, 0.015); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: 0.8em 1.1em;
+  border-left: 3px solid var(--color-border-strong);
+  background: var(--color-surface);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  color: var(--color-muted);
+}
+blockquote p { margin: 0.4em 0; }
 
 /* -------------------------------------------------------------------------
-   3. Callout components
-   One visual language for every colored box in the course. Icon + label are
-   never the only signal — each type also has a distinct text label.
+   3. Code
+   ------------------------------------------------------------------------- */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  padding: 0.15em 0.4em;
+}
+
+pre {
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1em;
+}
+pre.mermaid { background: transparent; border: none; padding: 0; overflow-x: visible; }
+
+.code-block-wrap { position: relative; }
+.copy-btn {
+  position: absolute;
+  top: 0.6em;
+  right: 0.6em;
+  z-index: 2;
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 0.4em 0.7em;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.code-block-wrap:hover .copy-btn,
+.code-block-wrap:focus-within .copy-btn,
+.copy-btn:focus-visible { opacity: 1; }
+.copy-btn:hover { color: var(--color-link); border-color: var(--color-link); }
+.copy-btn[data-copied="true"] { color: var(--emerald-400); border-color: var(--emerald-500); opacity: 1; }
+@media (max-width: 600px) { .copy-btn { opacity: 1; } }
+
+/* -------------------------------------------------------------------------
+   4. Callout components — the course's visual language
    ------------------------------------------------------------------------- */
 .callout {
-  margin: 1.25em 0;
-  padding: 1em 1.1em;
-  border-radius: var(--radius-md);
+  margin: 1.4em 0;
+  padding: 1.1em 1.25em;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   border-left-width: 4px;
   background: var(--color-surface);
@@ -128,84 +288,138 @@ details summary { cursor: pointer; }
   align-items: center;
   gap: 0.5em;
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 0.55em;
+  margin-bottom: 0.6em;
+  color: var(--color-text-strong);
 }
 
-.callout-concept   { border-left-color: var(--color-info);    background: var(--color-info-bg); }
-.callout-important { border-left-color: var(--color-danger);  background: var(--color-danger-bg); }
-.callout-protip     { border-left-color: var(--color-primary); background: var(--color-info-bg); }
-.callout-mistake   { border-left-color: var(--color-warning); background: var(--color-warning-bg); }
-.callout-tryit      { border-left-color: var(--color-success); background: var(--color-success-bg); }
-.callout-challenge { border-left-color: var(--color-purple);  background: var(--color-purple-bg); }
-.callout-remember  { border-left-color: var(--color-purple);  background: var(--color-purple-bg); }
-.callout-recovery  { border-left-color: var(--color-success); background: var(--color-success-bg); }
-.callout-realworld { border-left-color: var(--color-muted);   background: var(--color-surface); }
-.callout-sdet      { border-left-color: var(--color-primary); background: var(--color-info-bg); }
+.callout-concept   { border-left-color: var(--sky-400); }
+.callout-important { border-left-color: var(--rose-500); }
+.callout-protip     { border-left-color: var(--emerald-400); }
+.callout-mistake   { border-left-color: var(--amber-400); }
+.callout-tryit      { border-left-color: var(--emerald-500); }
+.callout-challenge { border-left-color: var(--violet-400); }
+.callout-remember  { border-left-color: var(--violet-400); }
+.callout-recovery  { border-left-color: var(--emerald-400); }
+.callout-realworld { border-left-color: var(--zinc-500); }
+.callout-sdet      { border-left-color: var(--sky-400); }
 
-/* Upgraded native GitHub alerts ([!NOTE] etc.) — same visual family */
-.gfm-alert { border-left-width: 4px; }
-.gfm-alert-note      { border-left-color: var(--color-info);    background: var(--color-info-bg); }
-.gfm-alert-tip       { border-left-color: var(--color-success); background: var(--color-success-bg); }
-.gfm-alert-important { border-left-color: var(--color-purple);  background: var(--color-purple-bg); }
-.gfm-alert-warning   { border-left-color: var(--color-warning); background: var(--color-warning-bg); }
-.gfm-alert-caution    { border-left-color: var(--color-danger); background: var(--color-danger-bg); }
+.gfm-alert-note      { border-left-color: var(--sky-400); }
+.gfm-alert-tip       { border-left-color: var(--emerald-400); }
+.gfm-alert-important { border-left-color: var(--violet-400); }
+.gfm-alert-warning   { border-left-color: var(--amber-400); }
+.gfm-alert-caution    { border-left-color: var(--rose-500); }
 
-/* -------------------------------------------------------------------------
-   4. Code blocks — copy button
-   ------------------------------------------------------------------------- */
-.code-block-wrap { position: relative; }
-.copy-btn {
-  position: absolute;
-  top: 0.5em;
-  right: 0.5em;
-  z-index: 2;
-  font-size: 0.72rem;
-  line-height: 1;
-  padding: 0.35em 0.6em;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-raised);
-  color: var(--color-muted);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-}
-.code-block-wrap:hover .copy-btn,
-.code-block-wrap:focus-within .copy-btn,
-.copy-btn:focus-visible {
-  opacity: 1;
-}
-.copy-btn:hover { color: var(--color-primary); border-color: var(--color-primary); }
-.copy-btn[data-copied="true"] { color: var(--color-success); border-color: var(--color-success); opacity: 1; }
-
-@media (max-width: 600px) {
-  /* Touch devices have no hover — keep the button always visible */
-  .copy-btn { opacity: 1; }
-}
-
-/* -------------------------------------------------------------------------
-   5. Destructive-command warning badge
-   ------------------------------------------------------------------------- */
 .danger-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #fff;
-  background: var(--color-danger);
-  padding: 0.25em 0.6em;
-  border-radius: 999px;
-  margin-bottom: 0.5em;
+  color: var(--zinc-950);
+  background: var(--rose-500);
+  padding: 0.3em 0.75em;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.6em;
 }
 
+details {
+  margin: 1em 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.7em 1em;
+  background: var(--color-surface);
+}
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+details[open] summary { margin-bottom: 0.6em; }
+
+/* Badges (shields.io etc.) sit awkwardly on dark bg at full brightness —
+   soften very slightly and keep them from stretching the layout */
+img[src*="shields.io"] { vertical-align: middle; }
+
 /* -------------------------------------------------------------------------
-   6. Site chrome — theme toggle, back-to-top, breadcrumbs, TOC
+   5. Site shell — header, footer, content width
+   ------------------------------------------------------------------------- */
+.site-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.site-header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1em 1.25em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+.site-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-text-strong) !important;
+  text-decoration: none !important;
+}
+.site-logo .tag { font-size: 0.7rem; font-weight: 600; color: var(--color-muted); letter-spacing: 0.04em; }
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  font-size: 0.85rem;
+}
+.site-nav a { color: var(--color-muted); font-weight: 500; }
+.site-nav a:hover { color: var(--color-text-strong); text-decoration: none; }
+
+.page-wrap {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.2em 1.25em 4em;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.2em;
+  align-items: start;
+}
+.page-content { min-width: 0; } /* lets pre/table overflow-x scroll instead of blowing out the grid */
+
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  padding: 2.4em 1.25em;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--color-muted-2);
+}
+.site-footer a { color: var(--color-muted); }
+.site-footer a:hover { color: var(--color-link); }
+.footer-links { display: flex; justify-content: center; gap: 1.2em; margin-bottom: 0.8em; flex-wrap: wrap; }
+
+/* -------------------------------------------------------------------------
+   6. Nav chrome — breadcrumbs, TOC, back-to-top, theme toggle
    ------------------------------------------------------------------------- */
 .chrome-btn {
   position: fixed;
@@ -215,19 +429,18 @@ details summary { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   border: 1px solid var(--color-border);
-  background: var(--color-surface-raised);
+  background: var(--color-bg-elevated);
   color: var(--color-text);
   box-shadow: var(--shadow-md);
   cursor: pointer;
   font-size: 1.05rem;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
 }
-.chrome-btn:hover { transform: translateY(-2px); }
+.chrome-btn:hover { transform: translateY(-2px); border-color: var(--color-border-strong); }
 
 #theme-toggle-btn { bottom: 1.25rem; right: 1.25rem; }
-
 #back-to-top-btn {
   bottom: 1.25rem;
   right: 4.25rem;
@@ -235,128 +448,125 @@ details summary { cursor: pointer; }
   pointer-events: none;
   transform: translateY(8px);
 }
-#back-to-top-btn.visible {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
+#back-to-top-btn.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 .breadcrumb-nav {
-  font-size: 0.85rem;
-  color: var(--color-muted);
-  margin: 0 0 1.25em 0;
+  font-size: 0.82rem;
+  color: var(--color-muted-2);
+  margin: 0 0 1.4em 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35em;
+  gap: 0.4em;
   align-items: center;
 }
-.breadcrumb-nav a { color: var(--color-muted); text-decoration: none; }
-.breadcrumb-nav a:hover { color: var(--color-link); text-decoration: underline; }
-.breadcrumb-nav .sep { opacity: 0.6; }
-.breadcrumb-nav .current { color: var(--color-text); font-weight: 600; }
+.breadcrumb-nav a { color: var(--color-muted-2); }
+.breadcrumb-nav a:hover { color: var(--color-link); }
+.breadcrumb-nav .sep { opacity: 0.5; }
+.breadcrumb-nav .current { color: var(--color-muted); font-weight: 600; }
+
+.toc-sidebar:empty { display: none; }
 
 .toc-box {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.9em 1.1em;
-  margin: 1.5em 0;
-  font-size: 0.88rem;
+  border-radius: var(--radius-lg);
+  padding: 1em 1.2em;
+  margin: 0 0 1.6em 0;
+  font-size: 0.86rem;
 }
 .toc-box summary {
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-muted);
 }
-.toc-box ul { margin: 0.75em 0 0 0; padding-left: 1.1em; }
-.toc-box li { margin: 0.3em 0; }
-.toc-box a { color: var(--color-text); text-decoration: none; }
-.toc-box a:hover { color: var(--color-link); text-decoration: underline; }
-.toc-box a.active { color: var(--color-primary); font-weight: 600; }
+.toc-box ul { margin: 0.8em 0 0 0; padding-left: 0; list-style: none; }
+.toc-box li { margin: 0.4em 0; }
+.toc-box a { color: var(--color-text); }
+.toc-box a:hover { color: var(--color-link); }
+.toc-box a.active { color: var(--emerald-400); font-weight: 600; }
 
-@media (min-width: 1100px) {
-  .toc-box[data-sticky="true"] {
+/* Mobile/narrow: sidebar stacks above the content, collapsible */
+.toc-sidebar { margin: 0; }
+
+@media (min-width: 1000px) {
+  /* Desktop: real left sidebar, sticky, own grid column */
+  .page-grid:has(.toc-sidebar:not(:empty)) {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  .toc-sidebar {
     position: sticky;
-    top: 1.5rem;
-    max-height: calc(100vh - 3rem);
+    top: 5.5rem;
+    max-height: calc(100vh - 8rem);
     overflow-y: auto;
   }
+  .toc-sidebar .toc-box { margin: 0; }
+  /* On desktop it's a persistent sidebar, not a disclosure widget */
+  .toc-sidebar .toc-box summary { pointer-events: none; }
+  .toc-sidebar .toc-box summary::-webkit-details-marker { display: none; }
+  .toc-sidebar .toc-box summary { list-style: none; }
 }
 
 /* -------------------------------------------------------------------------
-   7. Progress tracker (home page)
+   7. Progress tracker
    ------------------------------------------------------------------------- */
-.progress-tracker { margin: 1.5em 0; }
+.progress-tracker { margin: 1.6em 0; }
 .progress-row {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 0.6em;
-  margin: 0.5em 0;
+  margin: 0.6em 0;
   font-size: 0.85rem;
 }
 .progress-row .progress-label { display: flex; align-items: center; gap: 0.5em; }
-.progress-row .progress-label a { color: var(--color-text); text-decoration: none; }
-.progress-row .progress-label a:hover { text-decoration: underline; }
+.progress-row .progress-label a { color: var(--color-text); }
 .progress-track {
   grid-column: 1 / -1;
   height: 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--color-border);
   overflow: hidden;
 }
-.progress-fill {
-  height: 100%;
-  background: var(--color-success);
-  border-radius: 999px;
-  transition: width 0.25s ease;
-}
-.progress-check { color: var(--color-success); font-weight: 700; }
+.progress-fill { height: 100%; background: var(--emerald-500); border-radius: var(--radius-full); transition: width 0.25s ease; }
+.progress-check { color: var(--emerald-400); font-weight: 700; }
 .progress-reset-btn {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: var(--color-muted);
   background: none;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 0.3em 0.7em;
+  border-radius: var(--radius-full);
+  padding: 0.35em 0.8em;
   cursor: pointer;
 }
-.progress-reset-btn:hover { color: var(--color-danger); border-color: var(--color-danger); }
+.progress-reset-btn:hover { color: var(--rose-400); border-color: var(--rose-500); }
 
 /* -------------------------------------------------------------------------
-   8. Accessibility
+   8. Buttons used in content (e.g. action-row links on the homepage)
    ------------------------------------------------------------------------- */
-a:focus-visible,
-button:focus-visible,
-summary:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--color-primary);
+.btn-row { display: flex; flex-wrap: wrap; gap: 0.6em; justify-content: center; }
+
+/* -------------------------------------------------------------------------
+   9. Accessibility + motion
+   ------------------------------------------------------------------------- */
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible {
+  outline: 2px solid var(--emerald-400);
   outline-offset: 2px;
 }
-
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
-
-.visually-hidden {
-  position: absolute;
-  width: 1px; height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* -------------------------------------------------------------------------
-   9. Mobile
+   10. Mobile
    ------------------------------------------------------------------------- */
-@media (max-width: 600px) {
+@media (max-width: 640px) {
+  body { font-size: 15.5px; }
+  .page-wrap { padding: 1.6em 1em 3em; }
+  .site-nav { gap: 0.8em; font-size: 0.78rem; }
   #back-to-top-btn { right: 1.25rem; bottom: 4.25rem; }
   .chrome-btn { width: 38px; height: 38px; font-size: 0.95rem; }
+  table { font-size: 0.82rem; }
 }
-
-/* Mermaid diagrams readable in dark mode (mermaid itself is re-initialized
-   with the matching theme by custom.js — this just prevents a white flash
-   while it loads) */
-pre.mermaid { background: transparent; }

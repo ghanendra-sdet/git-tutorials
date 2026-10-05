@@ -70,14 +70,14 @@ flowchart TD
     M05 --> M06["06 · Certification Prep"]
     M06 --> M07["07 · Exercises & Study Plan"]
 
-    style M00 fill:#d4edda
-    style M01 fill:#d4edda
-    style M02 fill:#cfe2ff
-    style M03 fill:#cfe2ff
-    style M04 fill:#fff3cd
-    style M05 fill:#ffcccc
-    style M06 fill:#ede9fe
-    style M07 fill:#ede9fe
+    style M00 fill:#d4edda,color:#1a1a1a
+    style M01 fill:#d4edda,color:#1a1a1a
+    style M02 fill:#cfe2ff,color:#1a1a1a
+    style M03 fill:#cfe2ff,color:#1a1a1a
+    style M04 fill:#fff3cd,color:#1a1a1a
+    style M05 fill:#ffcccc,color:#1a1a1a
+    style M06 fill:#ede9fe,color:#1a1a1a
+    style M07 fill:#ede9fe,color:#1a1a1a
 ```
 
 | # | Module | Level | "In one sentence" |

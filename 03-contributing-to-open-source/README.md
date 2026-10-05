@@ -213,9 +213,9 @@ flowchart TD
     I -->|Changes requested| F
     I -->|Approved| J["Merged! 🎉"]
 
-    style B fill:#fff3cd
-    style H fill:#cfe2ff
-    style J fill:#d4edda
+    style B fill:#fff3cd,color:#1a1a1a
+    style H fill:#cfe2ff,color:#1a1a1a
+    style J fill:#d4edda,color:#1a1a1a
 ```
 
 That's genuinely the entire mechanism behind every open-source contribution you've ever seen —

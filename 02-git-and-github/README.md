@@ -200,9 +200,9 @@ graph LR
     A[Local commits<br/>on your laptop] -->|git push| B[GitHub<br/>the shared remote]
     B -->|git pull| C[Someone else's laptop]
 
-    style A fill:#fff3cd
-    style B fill:#cfe2ff
-    style C fill:#d4edda
+    style A fill:#fff3cd,color:#1a1a1a
+    style B fill:#cfe2ff,color:#1a1a1a
+    style C fill:#d4edda,color:#1a1a1a
 ```
 
 > [!WARNING]
@@ -326,8 +326,8 @@ flowchart LR
     E -->|Changes needed| C
     F --> G[Deploy]
 
-    style A fill:#d4edda
-    style F fill:#d4edda
+    style A fill:#d4edda,color:#1a1a1a
+    style F fill:#d4edda,color:#1a1a1a
 ```
 
 1. `main` is always in a deployable state

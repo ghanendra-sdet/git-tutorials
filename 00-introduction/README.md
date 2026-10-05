@@ -146,9 +146,9 @@ graph TB
         E1 -.->|Works fine offline,<br/>syncs later| E1
     end
 
-    style C1 fill:#ffcccc
-    style E1 fill:#d4edda
-    style E2 fill:#d4edda
+    style C1 fill:#ffcccc,color:#1a1a1a
+    style E1 fill:#d4edda,color:#1a1a1a
+    style E2 fill:#d4edda,color:#1a1a1a
 ```
 
 In a **centralized** system, only the server has the full history — if it goes down, nobody can

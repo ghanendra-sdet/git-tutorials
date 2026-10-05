@@ -100,9 +100,9 @@ graph LR
     A[Working Directory<br/>📝 your messy desk] -->|git add| B[Staging Area<br/>📦 the box you're packing]
     B -->|git commit| C[Repository / .git history<br/>🚚 shipped & permanent]
 
-    style A fill:#fff3cd
-    style B fill:#cfe2ff
-    style C fill:#d4edda
+    style A fill:#fff3cd,color:#1a1a1a
+    style B fill:#cfe2ff,color:#1a1a1a
+    style C fill:#d4edda,color:#1a1a1a
 ```
 
 ### 💻 The technical example
@@ -496,8 +496,8 @@ graph TB
     subgraph "Three-Way Merge"
         B1[main moved forward too] --> B2[Git combines BOTH histories] --> B3[Creates a new<br/>merge commit]
     end
-    style A3 fill:#d4edda
-    style B3 fill:#cfe2ff
+    style A3 fill:#d4edda,color:#1a1a1a
+    style B3 fill:#cfe2ff,color:#1a1a1a
 ```
 
 - **Fast-forward**: nobody touched `main` while you were on your branch — Git just moves `main`'s
@@ -554,8 +554,8 @@ flowchart LR
     E -->|No, ready| F[git checkout main]
     F --> G[git merge<br/>your branch]
 
-    style D fill:#cfe2ff
-    style G fill:#d4edda
+    style D fill:#cfe2ff,color:#1a1a1a
+    style G fill:#d4edda,color:#1a1a1a
 ```
 
 ```bash

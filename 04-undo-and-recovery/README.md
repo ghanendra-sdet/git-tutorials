@@ -63,8 +63,8 @@ fix," rather than pretending it never happened.
 graph LR
     A[commit 1] --> B[commit 2<br/>the bug] --> C[commit 3] --> D["commit 4<br/>git revert commit 2"]
 
-    style B fill:#ffcccc
-    style D fill:#d4edda
+    style B fill:#ffcccc,color:#1a1a1a
+    style D fill:#d4edda,color:#1a1a1a
 ```
 
 **This is why `revert` is the safe choice for anything already pushed and shared** — it doesn't
@@ -118,9 +118,9 @@ graph TB
     subgraph "git reset --hard"
         H1[Commit undone] --> H2[Changes GONE completely]
     end
-    style S2 fill:#d4edda
-    style M2 fill:#fff3cd
-    style H2 fill:#ffcccc
+    style S2 fill:#d4edda,color:#1a1a1a
+    style M2 fill:#fff3cd,color:#1a1a1a
+    style H2 fill:#ffcccc,color:#1a1a1a
 ```
 
 > [!WARNING]
@@ -224,8 +224,8 @@ graph TB
     subgraph "After: git rebase main"
         C1["feature: A-B-C-D'-E'<br/>(D and E replayed on top of C)"]
     end
-    style A2 fill:#fff3cd
-    style C1 fill:#d4edda
+    style A2 fill:#fff3cd,color:#1a1a1a
+    style C1 fill:#d4edda,color:#1a1a1a
 ```
 
 **Merge vs. rebase — genuinely one of the most debated topics in all of Git:**

@@ -1,3 +1,8 @@
+---
+title: "GIT Tutorials"
+description: "A free, hands-on Git + GitHub course. Learn → See → Do → Break → Fix → Remember, with real commands, real recovery labs, and zero corporate-training energy."
+---
+
 <div align="center" markdown="1">
 
 # 🐙 GIT Tutorials — From `git init` to "wait, how do I undo this"
@@ -11,10 +16,22 @@
 
 **A structured, hands-on Git + GitHub course — real commands, real analogies, real "oh no I force-pushed to main" recovery stories, zero corporate-training energy.**
 
+**Learn → See → Do → Break → Fix → Remember.** You don't just read about a command — you run it,
+in a disposable sandbox, immediately.
+
+[![Start Learning](https://img.shields.io/badge/🚀-Start%20Learning-2563eb?style=for-the-badge)](./00-introduction/)
+[![Course Roadmap](https://img.shields.io/badge/📚-Course%20Roadmap-16a34a?style=for-the-badge)](#️-the-path)
+[![Practice Labs](https://img.shields.io/badge/🧪-Practice%20Labs-d97706?style=for-the-badge)](./04-undo-and-recovery/#-disaster-labs)
+[![Cheat Sheet](https://img.shields.io/badge/⚡-Cheat%20Sheet-7c3aed?style=for-the-badge)](./resources/cheatsheet.md)
+
 **🌐 Browse it live:** [ghanendra-sdet.github.io/git-tutorials](https://ghanendra-sdet.github.io/git-tutorials/)<br><br>
 **📦 View source on GitHub:** [github.com/ghanendra-sdet/git-tutorials](https://github.com/ghanendra-sdet/git-tutorials)
 
 </div>
+
+<div id="progress-tracker-mount"></div>
+
+<p align="center"><em>Progress is tracked only in your own browser (localStorage) — no login, nothing sent anywhere. The checklist above will stay empty until JavaScript runs, on the live site.</em></p>
 
 ---
 
@@ -43,16 +60,36 @@ This one is different for three reasons:
 
 ## 🗺️ The Path
 
+```mermaid
+flowchart TD
+    M00["00 · Introduction & Setup"] --> M01["01 · Git Fundamentals"]
+    M01 --> M02["02 · Git + GitHub"]
+    M02 --> M03["03 · Contributing to Open Source"]
+    M03 --> M04["04 · Undo & Recovery"]
+    M04 --> M05["05 · Advanced Git"]
+    M05 --> M06["06 · Certification Prep"]
+    M06 --> M07["07 · Exercises & Study Plan"]
+
+    style M00 fill:#d4edda,color:#1a1a1a
+    style M01 fill:#d4edda,color:#1a1a1a
+    style M02 fill:#cfe2ff,color:#1a1a1a
+    style M03 fill:#cfe2ff,color:#1a1a1a
+    style M04 fill:#fff3cd,color:#1a1a1a
+    style M05 fill:#ffcccc,color:#1a1a1a
+    style M06 fill:#ede9fe,color:#1a1a1a
+    style M07 fill:#ede9fe,color:#1a1a1a
 ```
-00 → Introduction & Setup       "What even is version control, and why does everyone use this one"
-01 → Git Fundamentals           "The 90% of Git you'll use every single day"
-02 → Git + GitHub               "Your laptop's Git talking to the internet's Git"
-03 → Contributing to Open Source "Fork, clone, pull request, profit (reputation-wise)"
-04 → Undo & Recovery            "You didn't break it. Well — you did. But it's fixable."
-05 → Advanced Git               "The stuff that shows up in senior job descriptions"
-06 → Certification Prep         "Prove it, on paper"
-07 → Exercises & Study Plan     "Stop reading, start typing"
-```
+
+| # | Module | Level | "In one sentence" |
+|---|---|---|---|
+| 00 | [Introduction & Setup](./00-introduction/) | 🟢 Beginner | What even is version control, and why does everyone use this one |
+| 01 | [Git Fundamentals](./01-git-fundamentals/) | 🟢 Beginner | The 90% of Git you'll use every single day |
+| 02 | [Git + GitHub](./02-git-and-github/) | 🟢 Beginner→Intermediate | Your laptop's Git talking to the internet's Git |
+| 03 | [Contributing to Open Source](./03-contributing-to-open-source/) | 🔵 Intermediate | Fork, clone, pull request, profit (reputation-wise) |
+| 04 | [Undo & Recovery](./04-undo-and-recovery/) | 🔵 Intermediate | You didn't break it. Well — you did. But it's fixable |
+| 05 | [Advanced Git](./05-advanced-git/) | 🔴 Advanced | The stuff that shows up in senior job descriptions |
+| 06 | [Certification Prep](./06-certification-prep/) | 🟣 All levels | Prove it, on paper |
+| 07 | [Exercises & Study Plan](./07-exercises-and-study-plan/) | 🟣 All levels | Stop reading, start typing |
 
 Follow the numbers in order for modules 00–02 — everything after that builds directly on branching
 and merging, which is the one concept you genuinely cannot skip.
@@ -114,9 +151,13 @@ progression. This is where reading turns into muscle memory.
 
 ## 🧠 Practice & Recall
 
-Reading a module once won't make the commands stick — using them will. Two resources built
+Reading a module once won't make the commands stick — using them will. Three resources built
 specifically for that:
 
+- **[Interactive Cheatsheet Matrix](./resources/interactive-cheatsheet.html)** — every command,
+  searchable and filterable by "how much you're panicking," with one-click copy and a live,
+  consequence-free visual Git tree sandbox (click "commit," "branch," "merge" and watch the graph
+  update in real time).
 - **[Command Recall Drill](./resources/command-recall-drill.md)** — scenario-based, fold-to-reveal
   quizzing across every module. Do 10-15 a day, not all of them at once — this is spaced
   repetition, not a reading list.

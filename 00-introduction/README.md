@@ -1,3 +1,8 @@
+---
+title: "Module 00 — Introduction & Setup"
+description: "What version control actually is, installing Git, and the one-time config that saves you from a confusing commit history."
+---
+
 <div align="center" markdown="1">
 
 # 🏠 Module 00 — Introduction & Setup
@@ -9,10 +14,23 @@
 
 </div>
 
+<div class="callout callout-concept" markdown="1">
+
+**By the end of this module you will be able to:**
+
+✓ Explain what Git actually *is*, and why it beat older version control systems
+✓ Install Git and set your identity correctly (global vs. local)
+✓ Create a real Git repository from scratch with `git init`
+✓ Read `git status`'s output and know what it's telling you to do next
+✓ Pull up Git's built-in help without leaving the terminal
+
+</div>
+
 ---
 
 ## 📑 In This Module
 
+- [Set Up Your Safe Sandbox](#-set-up-your-safe-sandbox)
 - [Git Home — What Even Is This](#-git-home--what-even-is-this)
 - [Git Intro — Version Control, Explained Like You're Five (a smart five-year-old)](#-git-intro--version-control-explained-like-youre-five-a-smart-five-year-old)
 - [Git Install](#-git-install)
@@ -20,6 +38,33 @@
 - [Git Get Started](#-git-get-started)
 - [Git Help](#-git-help)
 - [Glossary (Module 00 Terms)](#-glossary-module-00-terms)
+
+---
+
+## 🛟 Set Up Your Safe Sandbox
+
+Every "Try It" and "Your Turn" block in this course — starting right now — assumes you have one
+disposable folder to actually type commands into. Not a real project. Something you can break on
+purpose, over and over, with zero consequences.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+```bash
+mkdir ~/git-playground
+cd ~/git-playground
+```
+
+That's it for now — you don't even have `git init` yet, because the very next section is about
+to teach you what that command does and why. Just get the folder made and remember where it is;
+every module from here forward will say "in your playground" and mean this exact folder.
+
+</div>
+
+> [!TIP]
+> Keep this folder for the entire course. Delete everything inside it whenever you want a clean
+> slate — nothing in here should ever be work you actually care about keeping.
 
 ---
 
@@ -101,9 +146,9 @@ graph TB
         E1 -.->|Works fine offline,<br/>syncs later| E1
     end
 
-    style C1 fill:#ffcccc
-    style E1 fill:#d4edda
-    style E2 fill:#d4edda
+    style C1 fill:#ffcccc,color:#1a1a1a
+    style E1 fill:#d4edda,color:#1a1a1a
+    style E2 fill:#d4edda,color:#1a1a1a
 ```
 
 In a **centralized** system, only the server has the full history — if it goes down, nobody can
@@ -151,6 +196,21 @@ git --version
 > added to it. (The other 20% of the time, you'll be Googling PATH environment variables at
 > midnight. We've all been there.)
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+```bash
+git --version
+git help -a
+```
+
+**What should I see?** A version number on the first command, and a long alphabetical list of
+every Git subcommand that exists on the second. You don't need to read all of it — just confirm
+it printed something. That list existing at all is the whole point of the next section.
+
+</div>
+
 ---
 
 ## ⚙️ Git Config
@@ -195,29 +255,82 @@ git config user.email "you@company.com"
 > override it with a `--local` (no flag) config inside your work repos specifically — not the
 > other way around, unless you enjoy explaining commit history to HR.
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+git config --list
+```
+
+**What should I see?** A list of key=value settings, including `user.name=Your Name` and
+`user.email=you@example.com` somewhere in it. If you don't see them, the config didn't save —
+check for a typo in the command before moving on.
+
+</div>
+
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN**
+
+Without looking at the example above: set your email to one thing **globally**, then go into
+your `~/git-playground` folder and override it to something different, **locally, just for that
+one folder**. Then run `git config user.email` *inside* the playground folder, and run it again
+from somewhere *outside* it. Can you explain out loud why the two commands print different
+answers?
+
+<details>
+<summary>💡 Show solution</summary>
+
+```bash
+git config --global user.email "global@example.com"
+
+cd ~/git-playground
+git config user.email "local-override@example.com"
+
+git config user.email        # prints "local-override@example.com" — local wins here
+cd ..
+git config user.email        # prints "global@example.com" — no local override outside the playground
+```
+
+Local config lives in that specific repo's `.git/config` file and always wins over global when
+both exist — that's the entire mechanism behind "why do my personal commits show my work email"
+bugs: someone set a local override once, forgot about it, and every commit since has used it.
+
+</details>
+
+</div>
+
 ---
 
 ## 🚀 Git Get Started
 
-Time to actually create a repository.
+Time to actually create a repository — in the `~/git-playground` folder you made earlier.
 
-### Step by step
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF**
 
 ```bash
-# 1. Make a new folder and go into it
-mkdir my-first-repo
-cd my-first-repo
+cd ~/git-playground
 
-# 2. Turn it into a Git repository
+# Turn this folder into a Git repository
 git init
-# Initialized empty Git repository in .../my-first-repo/.git/
+# Initialized empty Git repository in .../git-playground/.git/
 
-# 3. Check what Git thinks is going on (you'll run this CONSTANTLY)
+# Check what Git thinks is going on (you'll run this CONSTANTLY)
 git status
 # On branch main
 # No commits yet
 # nothing to commit (create/copy files and use "git add" to track)
 ```
+
+**What should I see?** `git init`'s one-line confirmation, then `git status` reporting a brand
+new, empty repo on branch `main` with nothing to commit yet.
+
+</div>
 
 That `.git` folder `git init` just created is where **all** of Git's magic lives — the entire
 history, every branch, every commit. Delete that folder, and as far as Git is concerned, the
@@ -228,6 +341,48 @@ project's history never existed (the files themselves are untouched — only the
 > under-use it. Get in the habit of running it after *every* action — after creating files, after
 > staging, after committing. It always tells you exactly what state you're in and, usually, the
 > exact next command to run.
+
+<div class="callout callout-challenge" markdown="1">
+
+**🎯 YOUR TURN**
+
+Before running anything — predict out loud what `git status` will print if you create a brand
+new empty file right now and run it, **without** running `git add` first. Then actually do it
+and check your prediction.
+
+<details>
+<summary>💡 Show solution</summary>
+
+```bash
+touch notes.txt
+git status
+```
+
+```
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        notes.txt
+```
+
+If you predicted "it'll show up as untracked, not staged" — that's exactly right, and it's the
+single most important mental model from this entire module: Git notices new files immediately,
+but never tracks them until you explicitly say so with `git add`.
+
+</details>
+
+</div>
+
+<div class="callout callout-sdet" markdown="1">
+
+**🧪 SDET SCENARIO**
+
+Every automation repo you'll ever work in — a Playwright suite, a Selenium framework, a Postman
+collection exported to Newman — starts with exactly this: `git init` (or `git clone`, if someone
+already created it), then an immediate `.gitignore` for `node_modules/`, test reports, and
+screenshots nobody wants committed. You'll see the real version of this in
+[Module 05](../05-advanced-git/#-gitignore).
+
+</div>
 
 ---
 
@@ -277,6 +432,18 @@ Before moving to Module 01, you should be able to answer these without looking b
 If any of those feel shaky, that's completely normal for a first pass — skim back through, it'll
 click. If you're solid on all three, you're ready for the module where things actually get typed
 into files.
+
+<div class="callout callout-remember" markdown="1">
+
+**🧠 You can now:**
+
+✓ Install Git and verify it from the terminal
+✓ Set your identity globally, and override it locally when you need to
+✓ Turn any folder into a Git repository with `git init`
+✓ Read `git status` and know the difference between "untracked" and "nothing to commit"
+✓ Reach for `git help` instead of leaving the terminal to Google a flag
+
+</div>
 
 ---
 

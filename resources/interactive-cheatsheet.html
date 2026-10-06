@@ -6,33 +6,54 @@
 <title>Interactive Cheatsheet Matrix — GIT Tutorials</title>
 <meta name="description" content="Searchable, filterable Git command matrix with copy-to-clipboard and a live commit-graph sandbox.">
 <script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: 'class' };</script>
+<script>
+  // Applied before paint, synced with the same localStorage key the rest of
+  // the site uses, so the theme choice is shared across pages.
+  (function () {
+    try {
+      var stored = localStorage.getItem("git-tutorials-theme");
+      var isDark = stored === "dark" || (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", isDark);
+    } catch (e) { document.documentElement.classList.add("dark"); }
+  })();
+</script>
 <style>
-  body { background-color: #09090b; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: #18181b; }
-  ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+  ::-webkit-scrollbar-track { background: #e4e4e7; }
+  ::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 9999px; }
+  html.dark ::-webkit-scrollbar-track { background: #18181b; }
+  html.dark ::-webkit-scrollbar-thumb { background: #3f3f46; }
   .card-enter { animation: cardIn .25s ease both; }
   @keyframes cardIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   .filter-pill[data-active="true"] { color: #09090b; }
+  @media (prefers-reduced-motion: reduce) { .card-enter { animation: none; } }
 </style>
 </head>
-<body class="min-h-screen bg-zinc-950 text-zinc-200 antialiased">
+<body class="min-h-screen bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 antialiased transition-colors">
 
   <!-- ============ HEADER ============ -->
-  <header class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
+  <header class="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between gap-4">
       <div>
-        <h1 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+        <h1 class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
           <span aria-hidden="true">🧊</span> Interactive Cheatsheet Matrix
         </h1>
-        <p class="text-xs sm:text-sm text-zinc-400 mt-0.5">
+        <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-0.5">
           Every command from the course, filterable by how much you're panicking.
         </p>
       </div>
-      <a href="./cheatsheet.md"
-         class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 border border-zinc-700 hover:border-emerald-500 hover:text-emerald-400 rounded-full px-3 py-1.5 transition-colors">
-        📖 Flat reference
-      </a>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle"
+          class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+          aria-label="Toggle theme" title="Toggle light/dark theme">
+          <span id="theme-icon" aria-hidden="true">🌙</span>
+        </button>
+        <a href="./cheatsheet.html"
+           class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full px-3 py-1.5 transition-colors">
+          📖 Flat reference
+        </a>
+      </div>
     </div>
   </header>
 
@@ -43,12 +64,12 @@
 
       <!-- Search -->
       <div class="relative mb-5">
-        <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">🔎</span>
+        <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500">🔎</span>
         <input
           id="search-input"
           type="text"
           placeholder="Search a command, or just type what's going wrong (e.g. “lost”, “stuck”, “conflict”)…"
-          class="w-full rounded-xl bg-zinc-900 border border-zinc-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none pl-11 pr-4 py-3 text-sm placeholder:text-zinc-500 transition-colors"
+          class="w-full rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none pl-11 pr-4 py-3 text-sm text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 transition-colors"
         />
       </div>
 
@@ -56,88 +77,119 @@
       <div class="flex flex-col sm:flex-row sm:items-start gap-4 mb-6">
 
         <div class="flex-1">
-          <p class="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Panic Level</p>
+          <p class="text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-500 font-semibold mb-2">Panic Level</p>
           <div class="flex flex-wrap gap-2" id="panic-filters" role="group" aria-label="Filter by panic level"></div>
         </div>
 
         <div class="flex-1">
-          <p class="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-2">Action Type</p>
+          <p class="text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-500 font-semibold mb-2">Action Type</p>
           <div class="flex flex-wrap gap-2" id="action-filters" role="group" aria-label="Filter by action type"></div>
         </div>
 
         <div class="sm:pt-6">
           <button id="clear-filters"
-            class="text-xs text-zinc-500 hover:text-rose-400 underline decoration-dotted transition-colors">
+            class="text-xs text-zinc-500 dark:text-zinc-500 hover:text-rose-500 dark:hover:text-rose-400 underline decoration-dotted transition-colors">
             Clear filters
           </button>
         </div>
       </div>
 
-      <p id="result-count" class="text-xs text-zinc-500 mb-4" aria-live="polite"></p>
+      <p id="result-count" class="text-xs text-zinc-500 dark:text-zinc-500 mb-4" aria-live="polite"></p>
 
       <div id="card-grid" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
 
-      <p id="empty-state" class="hidden text-center text-zinc-500 text-sm py-16">
-        Nothing matches. Even <code class="text-zinc-400">git</code> can't find that one. Try clearing a filter.
+      <p id="empty-state" class="hidden text-center text-zinc-500 dark:text-zinc-500 text-sm py-16">
+        Nothing matches. Even <code class="text-zinc-600 dark:text-zinc-400">git</code> can't find that one. Try clearing a filter.
       </p>
     </section>
 
     <!-- ============ VISUAL SANDBOX ============ -->
-    <section aria-labelledby="sandbox-heading" class="border-t border-zinc-800 pt-10">
-      <h2 id="sandbox-heading" class="text-lg font-bold text-white flex items-center gap-2 mb-1">
+    <section aria-labelledby="sandbox-heading" class="border-t border-zinc-200 dark:border-zinc-800 pt-10">
+      <h2 id="sandbox-heading" class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2 mb-1">
         <span aria-hidden="true">🌳</span> Visual Git Tree Sandbox
       </h2>
-      <p class="text-sm text-zinc-400 mb-5 max-w-2xl">
+      <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-5 max-w-2xl">
         A tiny, fake, entirely consequence-free Git repo. Click the buttons, watch the tree change.
         Nothing here can actually break — that's the whole point.
       </p>
 
-      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-6">
-        <canvas id="git-canvas" width="900" height="260" class="w-full h-auto rounded-lg bg-zinc-950 border border-zinc-800"></canvas>
+      <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-4 sm:p-6">
+        <canvas id="git-canvas" width="900" height="260" class="w-full h-auto rounded-lg bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800"></canvas>
 
         <div class="flex flex-wrap items-center gap-2 mt-5">
           <button data-action="commit"
-            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold text-sm px-3.5 py-2 transition-colors">
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white dark:text-zinc-950 font-semibold text-sm px-3.5 py-2 transition-colors">
             ➕ git commit
           </button>
           <button data-action="branch"
-            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-sm px-3.5 py-2 transition-colors">
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 text-sm px-3.5 py-2 transition-colors">
             🌿 git branch feature
           </button>
           <button data-action="checkout-main"
-            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-sm px-3.5 py-2 transition-colors">
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 text-sm px-3.5 py-2 transition-colors">
             📍 checkout main
           </button>
           <button data-action="checkout-feature"
-            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-sm px-3.5 py-2 transition-colors" disabled>
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-100 text-sm px-3.5 py-2 transition-colors" disabled>
             📍 checkout feature
           </button>
           <button data-action="merge"
-            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-zinc-950 font-semibold text-sm px-3.5 py-2 transition-colors" disabled>
+            class="sandbox-btn inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white dark:text-zinc-950 font-semibold text-sm px-3.5 py-2 transition-colors" disabled>
             🔀 git merge feature
           </button>
           <button data-action="reset"
-            class="sandbox-btn ml-auto inline-flex items-center gap-1.5 rounded-lg text-rose-400 hover:text-rose-300 text-sm px-3.5 py-2 transition-colors">
+            class="sandbox-btn ml-auto inline-flex items-center gap-1.5 rounded-lg text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300 text-sm px-3.5 py-2 transition-colors">
             ♻️ reset sandbox
           </button>
         </div>
 
-        <p id="sandbox-status" class="mt-4 text-sm text-zinc-400 font-mono" aria-live="polite">
-          On <span class="text-emerald-400 font-semibold">main</span> · 1 commit
+        <p id="sandbox-status" class="mt-4 text-sm text-zinc-600 dark:text-zinc-400 font-mono" aria-live="polite">
+          On <span class="text-emerald-600 dark:text-emerald-400 font-semibold">main</span> · 1 commit
         </p>
       </div>
     </section>
 
   </main>
 
-  <footer class="max-w-6xl mx-auto px-4 sm:px-6 py-10 text-center text-xs text-zinc-600">
-    Part of <a href="../" class="text-zinc-400 hover:text-emerald-400 underline decoration-dotted">GIT Tutorials</a>
+  <footer class="max-w-6xl mx-auto px-4 sm:px-6 py-10 text-center text-xs text-zinc-500 dark:text-zinc-600">
+    Part of <a href="../" class="text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 underline decoration-dotted">GIT Tutorials</a>
     — no corporate training energy, just commands that make sense.
   </footer>
 
 <script>
 (function () {
   "use strict";
+
+  /* =========================================================
+     THEME TOGGLE — shares the git-tutorials-theme localStorage
+     key with the rest of the site (see assets/js/custom.js)
+     ========================================================= */
+  const THEME_KEY = "git-tutorials-theme";
+
+  function getStoredTheme() {
+    try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+  }
+  function setStoredTheme(value) {
+    try {
+      if (value === null) localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, value);
+    } catch (e) { /* private mode etc. */ }
+  }
+  function applyTheme(isDark) {
+    document.documentElement.classList.toggle("dark", isDark);
+    document.getElementById("theme-icon").textContent = isDark ? "☀️" : "🌙";
+    if (typeof refreshSandbox === "function") refreshSandbox();
+  }
+
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const current = getStoredTheme();
+    // light -> dark -> system(null) -> light ...
+    const next = current === "light" ? "dark" : current === "dark" ? null : "light";
+    setStoredTheme(next);
+    const isDark = next === "dark" || (next === null && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    applyTheme(isDark);
+  });
+  applyTheme(document.documentElement.classList.contains("dark"));
 
   /* =========================================================
      DATA — every command tagged by Panic Level + Action Type
@@ -225,9 +277,9 @@
   const state = { search: "", panic: "all", action: "all" };
 
   const colorClasses = {
-    emerald: { bg: "bg-emerald-500", text: "text-emerald-400", border: "border-emerald-500/40", chipBg: "bg-emerald-500/10" },
-    amber:   { bg: "bg-amber-500",   text: "text-amber-400",   border: "border-amber-500/40",   chipBg: "bg-amber-500/10" },
-    rose:    { bg: "bg-rose-500",    text: "text-rose-400",    border: "border-rose-500/40",    chipBg: "bg-rose-500/10" },
+    emerald: { bg: "bg-emerald-500", text: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-500/40", chipBg: "bg-emerald-500/10" },
+    amber:   { bg: "bg-amber-500",   text: "text-amber-600 dark:text-amber-400",   border: "border-amber-500/40",   chipBg: "bg-amber-500/10" },
+    rose:    { bg: "bg-rose-500",    text: "text-rose-600 dark:text-rose-400",    border: "border-rose-500/40",    chipBg: "bg-rose-500/10" },
   };
 
   function buildFilterPills(containerId, entries, stateKey) {
@@ -259,13 +311,13 @@
   function pillClasses(color, active) {
     const base = "filter-pill text-xs font-medium rounded-full px-3 py-1.5 border transition-colors";
     if (!active) {
-      return `${base} bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200`;
+      return `${base} bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200`;
     }
     const map = {
-      zinc:    "bg-zinc-200 border-zinc-200 text-zinc-950",
-      emerald: "bg-emerald-500 border-emerald-500 text-zinc-950",
-      amber:   "bg-amber-500 border-amber-500 text-zinc-950",
-      rose:    "bg-rose-500 border-rose-500 text-zinc-950",
+      zinc:    "bg-zinc-800 dark:bg-zinc-200 border-zinc-800 dark:border-zinc-200 text-white dark:text-zinc-950",
+      emerald: "bg-emerald-500 border-emerald-500 text-white dark:text-zinc-950",
+      amber:   "bg-amber-500 border-amber-500 text-white dark:text-zinc-950",
+      rose:    "bg-rose-500 border-rose-500 text-white dark:text-zinc-950",
     };
     return `${base} ${map[color] || map.zinc}`;
   }
@@ -300,25 +352,25 @@
     const actionMeta = ACTION[entry.action];
     const c = colorClasses[panicMeta.color];
     return `
-      <article class="card-enter rounded-xl border ${c.border} bg-zinc-900/60 hover:bg-zinc-900 p-4 flex flex-col gap-3 transition-colors" style="animation-delay:${Math.min(index * 20, 200)}ms">
+      <article class="card-enter rounded-xl border ${c.border} bg-zinc-50 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-900 p-4 flex flex-col gap-3 transition-colors" style="animation-delay:${Math.min(index * 20, 200)}ms">
         <div class="flex items-center justify-between gap-2">
           <span class="text-[11px] font-semibold rounded-full px-2 py-0.5 ${c.chipBg} ${c.text}">
             ${panicMeta.emoji} ${panicMeta.label}
           </span>
-          <span class="text-[11px] text-zinc-500">${actionMeta.emoji} ${actionMeta.label}</span>
+          <span class="text-[11px] text-zinc-500 dark:text-zinc-500">${actionMeta.emoji} ${actionMeta.label}</span>
         </div>
 
         <div class="flex items-center gap-2">
-          <code class="flex-1 text-[13px] leading-snug text-zinc-100 bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 overflow-x-auto whitespace-pre">${escapeHTML(entry.cmd)}</code>
+          <code class="flex-1 text-[13px] leading-snug text-zinc-800 dark:text-zinc-100 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 overflow-x-auto whitespace-pre">${escapeHTML(entry.cmd)}</code>
           <button
-            class="copy-btn shrink-0 rounded-lg border border-zinc-700 hover:border-emerald-500 text-zinc-400 hover:text-emerald-400 w-9 h-9 flex items-center justify-center transition-colors"
+            class="copy-btn shrink-0 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 w-9 h-9 flex items-center justify-center transition-colors"
             data-cmd="${escapeAttr(entry.cmd)}"
             aria-label="Copy command to clipboard"
             title="Copy to clipboard"
           >📋</button>
         </div>
 
-        <p class="text-[13px] text-zinc-400 leading-relaxed">${escapeHTML(entry.desc)}</p>
+        <p class="text-[13px] text-zinc-600 dark:text-zinc-400 leading-relaxed">${escapeHTML(entry.desc)}</p>
       </article>`;
   }
 
@@ -358,10 +410,10 @@
         }
         const original = btn.textContent;
         btn.textContent = "✅";
-        btn.classList.add("text-emerald-400", "border-emerald-500");
+        btn.classList.add("text-emerald-600", "dark:text-emerald-400", "border-emerald-500");
         setTimeout(() => {
           btn.textContent = original;
-          btn.classList.remove("text-emerald-400", "border-emerald-500");
+          btn.classList.remove("text-emerald-600", "dark:text-emerald-400", "border-emerald-500");
         }, 1200);
       });
     });
@@ -388,6 +440,8 @@
 
   /* =========================================================
      VISUAL SANDBOX — canvas-based mini commit graph
+     Colors are theme-aware: recomputed from the current .dark
+     class each time refreshSandbox() runs (see applyTheme above).
      ========================================================= */
   const canvas = document.getElementById("git-canvas");
   const ctx = canvas.getContext("2d");
@@ -400,15 +454,15 @@
     merged: false,
   };
 
-  const COLORS = {
-    main: "#34d399",     // emerald-400
-    feature: "#fbbf24",  // amber-400
-    line: "#3f3f46",     // zinc-700
-    dim: "#52525b",
-    text: "#e4e4e7",
-  };
+  function currentColors() {
+    const dark = document.documentElement.classList.contains("dark");
+    return dark
+      ? { main: "#34d399", feature: "#fbbf24", line: "#3f3f46", dim: "#71717a", text: "#e4e4e7", commitStroke: "#09090b" }
+      : { main: "#059669", feature: "#d97706", line: "#d4d4d8", dim: "#71717a", text: "#27272a", commitStroke: "#ffffff" };
+  }
 
   function drawSandbox() {
+    const COLORS = currentColors();
     const w = canvas.width, h = canvas.height;
     ctx.clearRect(0, 0, w, h);
 
@@ -431,7 +485,7 @@
     // main commits
     sandbox.main.forEach((c, i) => {
       const x = startX + i * stepX;
-      drawCommit(x, mainY, COLORS.main, i === mainLen - 1 && sandbox.active === "main" && !sandbox.feature);
+      drawCommit(x, mainY, COLORS.main, COLORS.commitStroke, i === mainLen - 1 && sandbox.active === "main" && !sandbox.feature);
       ctx.fillStyle = COLORS.dim;
       ctx.font = "11px ui-monospace, monospace";
       ctx.fillText(c.id, x - 10, mainY - 20);
@@ -466,7 +520,7 @@
 
       sandbox.feature.commits.forEach((c, i) => {
         const x = featStartX + i * stepX;
-        drawCommit(x, featureY, COLORS.feature, i === featLen - 1 && sandbox.active === "feature");
+        drawCommit(x, featureY, COLORS.feature, COLORS.commitStroke, i === featLen - 1 && sandbox.active === "feature");
         ctx.fillStyle = COLORS.dim;
         ctx.font = "11px ui-monospace, monospace";
         ctx.fillText(c.id, x - 10, featureY + 26);
@@ -475,7 +529,7 @@
       // merge line back into main
       if (sandbox.merged) {
         const mergeX = startX + (sandbox.main.length - 1) * stepX;
-        ctx.strokeStyle = COLORS.amberMerge || "#f59e0b";
+        ctx.strokeStyle = COLORS.feature;
         ctx.beginPath();
         ctx.moveTo(featEndX, featureY);
         ctx.bezierCurveTo(featEndX + stepX * 0.5, featureY, mergeX - stepX * 0.2, mainY, mergeX, mainY);
@@ -483,7 +537,7 @@
       }
     }
 
-    function drawCommit(x, y, color, highlighted) {
+    function drawCommit(x, y, color, strokeColor, highlighted) {
       if (highlighted) {
         ctx.beginPath();
         ctx.arc(x, y, r + 6, 0, Math.PI * 2);
@@ -497,7 +551,7 @@
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fillStyle = color;
       ctx.fill();
-      ctx.strokeStyle = "#09090b";
+      ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 2;
       ctx.stroke();
     }
@@ -515,7 +569,10 @@
   }
 
   function updateStatus() {
-    const branchColor = sandbox.active === "main" ? "text-emerald-400" : "text-amber-400";
+    const dark = document.documentElement.classList.contains("dark");
+    const branchColor = sandbox.active === "main"
+      ? (dark ? "text-emerald-400" : "text-emerald-600")
+      : (dark ? "text-amber-400" : "text-amber-600");
     const count = sandbox.active === "main" ? sandbox.main.length : sandbox.feature.commits.length;
     let extra = "";
     if (sandbox.merged) extra = " · merged into main 🎉";
@@ -527,6 +584,7 @@
     updateSandboxButtons();
     updateStatus();
   }
+  window.refreshSandbox = refreshSandbox;
 
   document.querySelectorAll(".sandbox-btn").forEach((btn) => {
     btn.addEventListener("click", () => {

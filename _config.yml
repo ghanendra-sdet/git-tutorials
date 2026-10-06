@@ -1,0 +1,23 @@
+theme: minima
+markdown: kramdown
+
+plugins:
+  - jekyll-readme-index
+  - jekyll-relative-links
+
+# Every README.md in this repo has front matter (added for SEO titles/
+# descriptions) — the plugin ignores README files with front matter
+# unless this is explicitly enabled.
+readme_index:
+  with_frontmatter: true
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor

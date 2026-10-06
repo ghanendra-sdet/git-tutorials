@@ -1,3 +1,8 @@
+---
+title: "Module 05 — Advanced Git"
+description: ".gitignore/.gitattributes, LFS, signed commits, cherry-picking, merge conflict resolution, CI/CD, hooks, submodules, and git bisect."
+---
+
 <div align="center" markdown="1">
 
 # 🚀 Module 05 — Advanced Git
@@ -6,6 +11,18 @@
 ![Time](https://img.shields.io/badge/time-3--4%20hours-blue.svg)
 
 **The stuff that shows up in senior job descriptions and nowhere in a beginner tutorial. This is where "I know Git" becomes "I actually know Git."**
+
+</div>
+
+<div class="callout callout-concept" markdown="1">
+
+**By the end of this module you will be able to:**
+
+✓ Keep junk and secrets out of a repo with `.gitignore` — and know its one real limitation
+✓ Apply one specific commit anywhere you need it with cherry-pick
+✓ Resolve a real merge conflict by hand, calmly
+✓ Hunt down exactly which commit introduced a regression, using `git bisect`
+✓ Explain what a pre-commit hook checks vs. what CI checks, and why teams use both
 
 </div>
 
@@ -19,6 +36,7 @@
 - [Signing Commits & Tags](#-signing-commits--tags)
 - [Cherry-pick & Patch](#-cherry-pick--patch)
 - [Merge Conflicts, Properly](#-merge-conflicts-properly)
+- [🔍 git bisect — Finding the Commit That Broke Things](#-git-bisect--finding-the-commit-that-broke-things)
 - [Git in CI/CD](#-git-in-cicd)
 - [Git Hooks](#-git-hooks)
 - [Submodules](#-submodules)
@@ -61,6 +79,23 @@ git commit -m "chore: stop tracking .env, add to gitignore"
 > commits that still contain it. If a real secret leaks, the fix is **rotating the credential**,
 > not just removing the file. [gitignore.io](https://www.toptal.com/developers/gitignore) generates
 > solid starter files for any language/framework combination.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+echo "node_modules/" > .gitignore
+echo ".env" >> .gitignore
+mkdir node_modules && touch node_modules/some-package.js
+touch .env
+git status
+```
+
+**What should I see?** Neither `node_modules/` nor `.env` show up anywhere in `git status` —
+not even as untracked. `.gitignore` is working.
+
+</div>
 
 ---
 
@@ -155,6 +190,27 @@ git checkout release/v1.2
 git cherry-pick <hash-of-the-fix-commit-on-main>
 ```
 
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+git switch main
+git switch -c release/v1.2              # pretend this is an earlier release branch
+git switch main
+echo "shared fix" >> shared.js && git add shared.js && git commit -m "fix: shared bug"
+git log --oneline -1                    # note this hash
+
+git switch release/v1.2
+git cherry-pick <that-commit-hash>
+git log --oneline -1                    # the fix, now here too — with a NEW hash
+```
+
+**What should I see?** The exact same change, now on `release/v1.2`, but as a brand new commit
+with its own hash — cherry-pick copies the *change*, not the original commit object.
+
+</div>
+
 **Patch** — export changes as a portable file, apply them elsewhere (useful when you can't push
 directly, e.g. emailing a fix to an offline system):
 
@@ -214,6 +270,98 @@ do, and writing the version that's genuinely correct.
 > conflicting changes. A branch merged after 2 days has far fewer conflicts than the same branch
 > merged after 3 weeks.
 
+<details>
+<summary>🧠 <strong>Quick Check:</strong> In a conflict block, which side is <code>HEAD</code> and which is "incoming"?</summary>
+
+```
+<<<<<<< HEAD
+const discountRate = 0.10;
+=======
+const discountRate = 0.15;
+>>>>>>> feature/pricing-update
+```
+
+Everything between `<<<<<<< HEAD` and `=======` is **your current branch's** version (the one
+you're merging *into*). Everything between `=======` and `>>>>>>> branch-name` is the **incoming**
+branch's version (the one you're merging *in*). Here, `0.10` is what's on your current branch;
+`0.15` is what `feature/pricing-update` wants to change it to.
+
+</details>
+
+> [!TIP]
+> Want to actually resolve one hands-on instead of just reading markers? [Module 04's Disaster
+> Lab 3](../04-undo-and-recovery/#-lab-3--merge-conflict) sets up a real conflict and walks
+> through fixing it.
+
+---
+
+## 🔍 git bisect — Finding the Commit That Broke Things
+
+A regression test started failing. You know it passed a week ago, across maybe 40 commits since.
+Reading every diff by hand would work — eventually — but there's a faster, structured way:
+**binary search through your own commit history.**
+
+```bash
+git bisect start
+git bisect bad                          # the current commit is confirmed broken
+git bisect good <hash-of-a-known-good-commit>
+
+# Git checks out a commit exactly halfway between good and bad.
+# Run your test / reproduce the bug, then tell Git the result:
+git bisect good      # this commit is fine — the bug is somewhere later
+# or
+git bisect bad       # this commit already has the bug — it's somewhere earlier
+
+# Git keeps halving the range automatically. Repeat until it reports:
+# "<hash> is the first bad commit"
+
+git bisect reset     # done — return to your original HEAD
+```
+
+### 🎭 The real-life example
+
+It's the "guess a number between 1 and 100" game, except the number is "which of these 40
+commits broke the checkout flow," and each guess costs you running the test suite once instead
+of just saying a number. 40 commits, checked one at a time, is 40 checks worst case. Bisected,
+it's **at most ~6** (log₂ 40) — Git throws away half the remaining suspects every single round.
+
+<div class="callout callout-sdet" markdown="1">
+
+**🧪 SDET SCENARIO**
+
+Your regression suite flags that `test_checkout_total_with_discount` started failing sometime in
+the last 40 commits, but nobody noticed exactly when because it only runs nightly. Instead of
+checking out commits one at a time and re-running the full suite by hand, point bisect at the
+test itself and let it fully automate the search:
+
+```bash
+git bisect start HEAD <known-good-commit>
+git bisect run npm test -- --grep "checkout_total_with_discount"
+```
+
+`git bisect run` checks out each candidate commit, runs that exact command, and uses its **exit
+code** to decide good/bad automatically — 0 means good, nonzero means bad. It reports the exact
+first broken commit without you touching a checkout command yourself. This is one of the
+highest-leverage automation-adjacent Git skills a test engineer can have: it turns "something
+broke somewhere in the last two weeks" from a multi-hour manual hunt into one unattended command.
+
+</div>
+
+> [!TIP]
+> `git bisect` needs a command (or your own judgment) that can cleanly say "good" or "bad" for
+> any commit in the range — which is exactly what an automated test assertion already does. This
+> is why bisect and test automation pair so naturally: the test *is* the oracle bisect needs.
+
+<details>
+<summary>🧠 <strong>Quick Check:</strong> Why does <code>git bisect run</code> need a command, not just a test file path?</summary>
+
+Because bisect decides good/bad purely from the command's **exit code** — it needs something it
+can actually execute and check the result of, not a file to read. `npm test -- --grep "..."` (or
+`pytest -k "..."`, or any equivalent) is a command that exits 0 on pass and nonzero on failure,
+which is exactly the signal bisect's automated loop depends on.
+
+</details>
+
 ---
 
 ## ⚙️ Git in CI/CD
@@ -222,7 +370,7 @@ Git isn't just for humans typing commands — CI/CD pipelines (GitHub Actions, J
 entirely around Git events.
 
 ```yaml
-# .github/workflows/test.yml — a real, minimal example
+# .github/workflows/test.yml — a real, minimal example for a Playwright test suite
 name: Run Tests
 on:
   push:
@@ -236,7 +384,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4    # this step IS a git clone, done for you
       - run: npm install
-      - run: npm test
+      - run: npx playwright install --with-deps
+      - run: npx playwright test
 ```
 
 ### 🎭 The real-life example
@@ -244,6 +393,19 @@ jobs:
 CI/CD is an automatic inspector standing at the shared filing cabinet, who reads every new page
 the moment it's filed (`git push`) and immediately checks it for problems — without waiting for a
 human to ask. `on: push` / `on: pull_request` are literally Git events triggering that inspection.
+
+<div class="callout callout-sdet" markdown="1">
+
+**🧪 SDET SCENARIO**
+
+This is the exact mechanism behind "every pull request automatically runs the test suite" —
+which is what Module 02's GitHub Flow called "CI passes" without showing the YAML behind it.
+`actions/checkout@v4` is doing a `git clone` of the exact commit the PR is built on, and the
+suite then runs against that precise snapshot — which is also why a flaky test that only fails
+in CI, not locally, is so often a real environment/data difference, not a ghost: it's running
+against genuinely different, freshly-cloned code every time.
+
+</div>
 
 ---
 
@@ -277,6 +439,28 @@ before allowing a push).
 > tracked) — everyone on a team has to set them up individually. Tools like
 > [Husky](https://typicode.github.io/husky/) solve this by making hooks a normal, committed,
 > shareable part of the project instead.
+
+<div class="callout callout-tryit" markdown="1">
+
+**⌨️ TRY IT YOURSELF** (in `~/git-playground`)
+
+```bash
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/sh
+echo "🪝 pre-commit hook running..."
+exit 1
+EOF
+chmod +x .git/hooks/pre-commit
+
+echo "test" >> app.js && git add app.js
+git commit -m "this should get blocked"
+```
+
+**What should I see?** The commit is refused — `exit 1` tells Git the hook failed, so the commit
+never happens, even though you ran `git commit` correctly. Change `exit 1` to `exit 0` and try
+again to see it succeed instead.
+
+</div>
 
 ---
 
@@ -336,6 +520,7 @@ told yet.
 | **Signed commit** | A commit cryptographically verified to actually be from you |
 | **Cherry-pick** | Apply one specific commit from any branch onto your current one |
 | **Merge conflict** | When Git can't automatically reconcile two changes to the same lines — needs human resolution |
+| **`git bisect`** | Binary search through commit history to find exactly which commit introduced a regression |
 | **Git hook** | A script that runs automatically at a specific point in Git's workflow (e.g. before a commit) |
 | **Submodule** | A Git repository nested inside another, tracked as a reference to a specific commit |
 
@@ -345,12 +530,25 @@ told yet.
 
 1. Why doesn't adding a file to `.gitignore` remove it from history if it was already committed?
 2. When would you reach for `cherry-pick` instead of a full `merge`?
-3. What's the actual difference between what a `pre-commit` hook checks vs. what CI checks — and
+3. Why does `git bisect` need a pass/fail signal (like a test's exit code) to actually automate?
+4. What's the actual difference between what a `pre-commit` hook checks vs. what CI checks — and
    why do teams often use both, not just one?
 
-(#3: a `pre-commit` hook is fast, local, and optional (someone COULD skip it with `--no-verify`)
+(#4: a `pre-commit` hook is fast, local, and optional (someone COULD skip it with `--no-verify`)
 — CI is slower, remote, and mandatory. Teams use both: hooks for a fast local safety net, CI as
 the actual, unskippable gate.)
+
+<div class="callout callout-remember" markdown="1">
+
+**🧠 You can now:**
+
+✓ Keep junk and secrets out of a repo with `.gitignore`, and know what it can't undo
+✓ Apply one specific commit anywhere you need it with cherry-pick
+✓ Read merge conflict markers and resolve a conflict calmly
+✓ Hunt down the exact commit that broke something with `git bisect` — manually or automated
+✓ Tell a local hook apart from a CI check, and know why real teams use both
+
+</div>
 
 ---
 

@@ -1,3 +1,8 @@
+---
+title: "Module 06 — Certification Prep"
+description: "A structured review pass across every module, framed as certification-style, scenario-based practice."
+---
+
 <div align="center" markdown="1">
 
 # 🎓 Module 06 — Certification Prep
@@ -94,7 +99,13 @@ module before moving on — don't just re-read, actually re-explain it to yourse
 **Advanced ([Module 05](../05-advanced-git/))**
 - [ ] `.gitignore` vs. `.gitattributes` — different jobs entirely
 - [ ] What a merge conflict actually is, and how to resolve one calmly
+- [ ] How `git bisect` finds a regression, and why it needs a pass/fail signal to automate
 - [ ] The difference between a local hook and a CI check
+
+**Disaster Labs ([Module 04](../04-undo-and-recovery/#-disaster-labs))**
+- [ ] Moving a commit off the wrong branch with `cherry-pick`
+- [ ] What "detached HEAD" actually means, and why it isn't automatically dangerous
+- [ ] Why a production hotfix branches from a tag, not from `main`'s current tip
 
 ---
 
@@ -145,6 +156,21 @@ you use, and why?**
 > It happens when the target branch (e.g. `main`) hasn't moved since the feature branch was
 > created — Git just moves `main`'s pointer forward to match, since there's no divergent history
 > to actually combine.
+
+**Q: A regression test started failing sometime in the last 30 commits, but nobody knows which
+one. Walk through how you'd find it.**
+> `git bisect start`, mark the current commit `bad` and a known-working older commit `good`. Git
+> checks out the midpoint; run the test, report `good` or `bad`, and Git halves the remaining
+> range each time — at most ~5 checks for 30 commits, instead of up to 30. If the check is itself
+> a test command, `git bisect run <command>` automates the entire loop using the command's exit
+> code, with no manual checkout steps at all.
+
+**Q: You run `git checkout` on an old commit hash directly and Git warns about "detached HEAD."
+Is this a problem?**
+> Not by itself — you're just viewing history with no branch name attached to `HEAD`. The only
+> real risk is making a new commit here and switching away without turning it into a real branch
+> first (`git switch -c name`); until then it's one `git switch` away from being reachable only
+> through the reflog.
 
 ---
 

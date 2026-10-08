@@ -393,10 +393,10 @@ img[src*="shields.io"] { vertical-align: middle; }
 
 .page-wrap {
   flex: 1;
-  max-width: 1200px;
+  max-width: 1360px;
   width: 100%;
   margin: 0 auto;
-  padding: 2.2em 1.25em 4em;
+  padding: 2.2em 1.5em 4em;
 }
 
 .page-grid {
@@ -491,9 +491,12 @@ img[src*="shields.io"] { vertical-align: middle; }
 .toc-sidebar { margin: 0; }
 
 @media (min-width: 1000px) {
-  /* Desktop: real left sidebar, sticky, own grid column */
+  /* Desktop: a wider, more substantial sidebar panel. Same card language as
+     the rest of the site (colored left border, like the callouts) instead
+     of a half-bled app-shell panel, just bigger and with real contrast
+     instead of a near-invisible background tint. */
   .page-grid:has(.toc-sidebar:not(:empty)) {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 288px minmax(0, 1fr);
   }
   .toc-sidebar {
     position: sticky;
@@ -501,7 +504,19 @@ img[src*="shields.io"] { vertical-align: middle; }
     max-height: calc(100vh - 8rem);
     overflow-y: auto;
   }
-  .toc-sidebar .toc-box { margin: 0; }
+
+  .toc-sidebar .toc-box {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--sky-400);
+    border-radius: var(--radius-lg);
+    padding: 1.2em 1.4em;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  .toc-sidebar .toc-box summary { font-size: 0.76rem; }
+  .toc-sidebar .toc-box ul { margin-top: 1em; }
+  .toc-sidebar .toc-box li { margin: 0.55em 0; line-height: 1.35; }
   /* On desktop it's a persistent sidebar, not a disclosure widget */
   .toc-sidebar .toc-box summary { pointer-events: none; }
   .toc-sidebar .toc-box summary::-webkit-details-marker { display: none; }

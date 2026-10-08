@@ -77,7 +77,13 @@
       var isDark = this.effectiveTheme() === "dark";
       try {
         window.mermaid.initialize({ startOnLoad: false, theme: isDark ? "dark" : "default" });
-        document.querySelectorAll("pre.mermaid[data-processed]").forEach(function (el) {
+        document.querySelectorAll("pre.mermaid").forEach(function (el) {
+          // Restore the original diagram source before re-rendering — once
+          // Mermaid has run, the element's content is rendered SVG, not
+          // source text, and re-parsing SVG as Mermaid text is what makes
+          // the diagram vanish (or throw "Syntax error in text") on a
+          // theme switch.
+          if (el.dataset.mermaidSource) el.textContent = el.dataset.mermaidSource;
           el.removeAttribute("data-processed");
         });
         window.mermaid.run ? window.mermaid.run() : window.mermaid.init(undefined, document.querySelectorAll("pre.mermaid"));
@@ -335,6 +341,10 @@
       var pre = document.createElement("pre");
       pre.className = "mermaid";
       pre.textContent = codeEl.textContent;
+      // Mermaid overwrites this element's content with rendered SVG on first
+      // run. Keep the original source around so a later theme-switch re-render
+      // doesn't try to re-parse SVG markup as diagram text.
+      pre.dataset.mermaidSource = codeEl.textContent;
       var oldPre = codeEl.closest("pre") || codeEl;
       oldPre.replaceWith(pre);
     });

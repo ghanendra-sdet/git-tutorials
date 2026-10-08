@@ -26,7 +26,6 @@
   html.dark ::-webkit-scrollbar-thumb { background: #3f3f46; }
   .card-enter { animation: cardIn .25s ease both; }
   @keyframes cardIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .filter-pill[data-active="true"] { color: #09090b; }
   @media (prefers-reduced-motion: reduce) { .card-enter { animation: none; } }
 </style>
 </head>
@@ -49,9 +48,13 @@
           aria-label="Toggle theme" title="Toggle light/dark theme">
           <span id="theme-icon" aria-hidden="true">🌙</span>
         </button>
+        <a href="./playground.html"
+           class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full px-2.5 sm:px-3 py-1.5 transition-colors">
+          🕹️ <span class="hidden sm:inline">Playground</span>
+        </a>
         <a href="./cheatsheet.html"
-           class="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full px-3 py-1.5 transition-colors">
-          📖 Flat reference
+           class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full px-2.5 sm:px-3 py-1.5 transition-colors">
+          📖 <span class="hidden sm:inline">Flat reference</span>
         </a>
       </div>
     </div>

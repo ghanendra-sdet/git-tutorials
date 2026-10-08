@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git Playground — GIT Tutorials</title>
+<meta name="description" content="Type real Git commands against a simulated local repo and remote (origin). Watch branching, merging, push and pull happen on a live commit graph, with non-blocking next-step suggestions.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: 'class' };</script>
+<script>
+  // Applied before paint, synced with the same localStorage key the rest of
+  // the site uses, so the theme choice is shared across pages.
+  (function () {
+    try {
+      var stored = localStorage.getItem("git-tutorials-theme");
+      var isDark = stored === "dark" || (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", isDark);
+    } catch (e) { document.documentElement.classList.add("dark"); }
+  })();
+</script>
+<style>
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #e4e4e7; }
+  ::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 9999px; }
+  html.dark ::-webkit-scrollbar-track { background: #18181b; }
+  html.dark ::-webkit-scrollbar-thumb { background: #3f3f46; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  #term-output::-webkit-scrollbar-track { background: #18181b; }
+  #term-output::-webkit-scrollbar-thumb { background: #3f3f46; }
+
+  .term { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .term-line { white-space: pre-wrap; word-break: break-word; line-height: 1.55; }
+  .blink-caret { animation: caretBlink 1s step-end infinite; }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+
+  .chip-pop { animation: chipPop .18s ease both; }
+  @keyframes chipPop { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+  .graph-scroll::-webkit-scrollbar { height: 8px; }
+
+  .progress-item[data-done="true"] .progress-dot { background: #10b981; border-color: #10b981; }
+  .progress-item[data-done="true"] .progress-dot::after { content: "✓"; }
+  .progress-dot {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.1rem; height: 1.1rem; border-radius: 9999px;
+    border: 2px solid #71717a; color: #09090b; font-size: 0.65rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body class="min-h-screen bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 antialiased transition-colors">
+
+  <!-- ============ HEADER ============ -->
+  <header class="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+          <span aria-hidden="true">🕹️</span> Git Playground
+        </h1>
+        <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-0.5">
+          A real terminal. A fake repo. Nothing here can touch your actual machine.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle"
+          class="inline-flex items-center justify-center w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+          aria-label="Toggle theme" title="Toggle light/dark theme">
+          <span id="theme-icon" aria-hidden="true">🌙</span>
+        </button>
+        <a href="./interactive-cheatsheet.html"
+           class="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-full px-2.5 sm:px-3 py-1.5 transition-colors">
+          🧊 <span class="hidden sm:inline">Cheatsheet</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+    <!-- ============ INTRO + PROGRESS ============ -->
+    <section class="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div class="rounded-xl border border-sky-400 border-l-4 bg-zinc-50 dark:bg-zinc-900/60 p-4 sm:p-5">
+        <p class="text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+          This simulates <strong>two</strong> repositories — your <strong>local</strong> machine and a
+          <strong>remote</strong> called <code class="text-[13px] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-1.5 py-0.5">origin</code>,
+          exactly like GitHub. Type real <code class="text-[13px] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded px-1.5 py-0.5">git</code> commands
+          below. <strong>Every command you type actually runs</strong> — the suggestion chip under the terminal is just a hint for
+          what to try next, it never blocks or overrides what you type and hit Enter on.
+        </p>
+      </div>
+      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4 sm:p-5">
+        <p class="text-[11px] uppercase tracking-wider text-zinc-500 font-semibold mb-2.5">Your progress</p>
+        <ul class="space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+          <li class="progress-item flex items-center gap-2" data-progress="initialized" data-done="false">
+            <span class="progress-dot" aria-hidden="true"></span> Clone or initialize the playground repo
+          </li>
+          <li class="progress-item flex items-center gap-2" data-progress="branched" data-done="false">
+            <span class="progress-dot" aria-hidden="true"></span> Branch, commit, and merge it back into main
+          </li>
+          <li class="progress-item flex items-center gap-2" data-progress="synced" data-done="false">
+            <span class="progress-dot" aria-hidden="true"></span> Push to origin, or pull a teammate's change
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ GRAPHS ============ -->
+    <section class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">💻 Local repository</h2>
+          <span id="local-status-line" class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400"></span>
+        </div>
+        <div class="graph-scroll overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+          <canvas id="local-canvas" height="150" class="block"></canvas>
+        </div>
+        <p id="local-empty-note" class="text-xs text-zinc-500 dark:text-zinc-500 mt-2 hidden">Not set up yet — try <code>git clone</code> or <code>git init</code>.</p>
+      </div>
+      <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">☁️ Remote — origin</h2>
+          <button id="simulate-teammate-btn"
+            class="text-[11px] font-medium text-violet-600 dark:text-violet-400 border border-violet-400/50 hover:border-violet-500 rounded-full px-2.5 py-1 transition-colors">
+            👤 Simulate teammate's push
+          </button>
+        </div>
+        <div class="graph-scroll overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+          <canvas id="origin-canvas" height="150" class="block"></canvas>
+        </div>
+        <p class="text-xs text-zinc-500 dark:text-zinc-500 mt-2">This is what everyone else sees — only what's been <code>push</code>ed shows up here.</p>
+      </div>
+    </section>
+
+    <!-- ============ FILES ============ -->
+    <section class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h2 class="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">📁 Working directory</h2>
+        <div class="flex items-center gap-2">
+          <input id="new-file-input" type="text" placeholder="new-file.txt"
+            class="text-xs w-36 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:border-emerald-500 outline-none px-2.5 py-1.5" />
+          <button id="new-file-btn" class="text-xs font-medium text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 rounded-lg px-2.5 py-1.5 transition-colors">+ Create file</button>
+        </div>
+      </div>
+      <div id="file-list" class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"></div>
+    </section>
+
+    <!-- ============ TERMINAL ============ -->
+    <section class="rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden">
+      <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500/70"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-500/70"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/70"></span>
+        <span class="ml-2 text-[11px] text-zinc-500 font-mono">playground — zsh</span>
+        <button id="clear-term-btn" class="ml-auto text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors">clear</button>
+        <button id="help-toggle-btn" class="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors">? help</button>
+        <button id="reset-playground-btn" class="text-[11px] text-rose-500/80 hover:text-rose-400 transition-colors">↺ reset</button>
+      </div>
+
+      <div id="term-output" class="term px-4 py-3 h-72 sm:h-80 overflow-y-auto text-[13px] text-zinc-300"></div>
+
+      <form id="term-form" class="flex items-center gap-2 px-4 py-3 border-t border-zinc-800 bg-zinc-900/40">
+        <label for="term-input" id="term-prompt" class="term text-[13px] text-emerald-400 whitespace-nowrap select-none"></label>
+        <input id="term-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+          class="term flex-1 bg-transparent outline-none text-[13px] text-zinc-100 placeholder:text-zinc-600"
+          placeholder="type a git command…" />
+        <button type="submit" class="text-[11px] font-semibold text-zinc-950 bg-emerald-500 hover:bg-emerald-400 rounded-md px-3 py-1.5 transition-colors">Run ▶</button>
+      </form>
+
+      <div class="px-4 pb-3.5 flex items-center gap-2 flex-wrap min-h-[2.25rem]" id="suggestion-row">
+        <!-- suggestion chip injected here -->
+      </div>
+
+      <div id="help-panel" class="hidden border-t border-zinc-800 bg-zinc-900/70 px-4 py-4 text-[12.5px] text-zinc-300">
+        <p class="text-zinc-500 mb-2 uppercase text-[10px] tracking-wider font-semibold">Supported commands</p>
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 font-mono">
+          <div><span class="text-emerald-400">git init</span> / <span class="text-emerald-400">git clone &lt;url&gt;</span></div>
+          <div><span class="text-emerald-400">git status</span></div>
+          <div><span class="text-emerald-400">git add &lt;file|.&gt;</span></div>
+          <div><span class="text-emerald-400">git commit -m "msg"</span></div>
+          <div><span class="text-emerald-400">git log</span> [--oneline] [--all]</div>
+          <div><span class="text-emerald-400">git branch</span> [name] / [-d name]</div>
+          <div><span class="text-emerald-400">git checkout</span> [-b] &lt;name&gt;</div>
+          <div><span class="text-emerald-400">git switch</span> [-c] &lt;name&gt;</div>
+          <div><span class="text-emerald-400">git merge &lt;branch&gt;</span></div>
+          <div><span class="text-emerald-400">git stash</span> / <span class="text-emerald-400">git stash pop</span></div>
+          <div><span class="text-emerald-400">git reset --hard</span> [HEAD~n]</div>
+          <div><span class="text-emerald-400">git remote -v</span></div>
+          <div><span class="text-emerald-400">git fetch</span> [origin]</div>
+          <div><span class="text-emerald-400">git pull</span> [origin branch]</div>
+          <div><span class="text-emerald-400">git push</span> [origin branch]</div>
+          <div><span class="text-zinc-500">help</span> / <span class="text-zinc-500">clear</span></div>
+        </div>
+      </div>
+    </section>
+
+    <p class="text-center text-xs text-zinc-500 dark:text-zinc-600">
+      Built from scratch for this course. The "what to try next" chip is state-driven — it reads your repo's actual
+      situation (staged files, ahead/behind origin, unmerged branches) rather than matching what you've typed.
+    </p>
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 py-10 text-center text-xs text-zinc-500 dark:text-zinc-600">
+    Part of <a href="../" class="text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 underline decoration-dotted">GIT Tutorials</a>
+    — no corporate training energy, just commands that make sense.
+  </footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+     THEME TOGGLE — shared across the site via localStorage
+     ========================================================= */
+  const THEME_KEY = "git-tutorials-theme";
+  function getStoredTheme() { try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; } }
+  function setStoredTheme(v) {
+    try { v === null ? localStorage.removeItem(THEME_KEY) : localStorage.setItem(THEME_KEY, v); } catch (e) {}
+  }
+  function applyTheme(isDark) {
+    document.documentElement.classList.toggle("dark", isDark);
+    document.getElementById("theme-icon").textContent = isDark ? "☀️" : "🌙";
+  }
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const current = getStoredTheme();
+    const next = current === "light" ? "dark" : current === "dark" ? null : "light";
+    setStoredTheme(next);
+    applyTheme(next === "dark" || (next === null && window.matchMedia("(prefers-color-scheme: dark)").matches));
+    // The commit graphs are drawn to <canvas> pixels, not styled via CSS —
+    // toggling the .dark class alone doesn't touch them, so the old theme's
+    // colors stay baked in and can go invisible against the new background.
+    if (typeof renderGraphs === "function") renderGraphs();
+  });
+  document.getElementById("theme-icon").textContent = document.documentElement.classList.contains("dark") ? "☀️" : "🌙";
+
+  /* =========================================================
+     CONSTANTS
+     ========================================================= */
+  const REMOTE_URL = "https://github.com/you/playground.git";
+  const STARTER_FILES = ["index.html", "app.js", "styles.css"];
+  const PROGRESS_KEY = "git-tutorials-playground-progress";
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  let commits;      // { id: { id, seq, parents: [id,...], message, branch, touched: [file,...] } }
+  let local;         // { initialized, branches: {name:id}, head: {type,name|commit}, remoteTracking: {name:id} }
+  let origin;        // { branches: {name:id} }
+  let files;          // { name: { working: 'clean'|'modified'|'untracked', staged: bool, ver: n } }
+  let branchLaneOrder; // global visual lane order, shared between both graphs
+  let stash;         // array of { files snapshot }
+  let mergeState;      // null | { other, conflicts: [file,...], resolved: Set }
+  let seqCounter;
+  let history;        // typed command history
+  let historyPos;
+  let progress;
+
+  function fakeHash(seq) {
+    // FNV-1a — a polynomial hash here left adjacent seeds ("c0" vs "c1")
+    // differing by only 1 in the raw integer, and truncating to 7 hex chars
+    // from the front then discarded exactly that one varying digit, making
+    // consecutive commits print near-identical fake hashes.
+    let h = 0x811c9dc5;
+    const s = "seed" + seq;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return (h >>> 0).toString(16).padStart(8, "0").slice(-7);
+  }
+
+  function newCommit(parents, message, branch, touched) {
+    const id = "c" + seqCounter;
+    commits[id] = { id, seq: seqCounter, parents: parents.slice(), message, branch, touched: touched || [] };
+    seqCounter++;
+    return id;
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      return raw ? JSON.parse(raw) : { initialized: false, branched: false, synced: false };
+    } catch (e) { return { initialized: false, branched: false, synced: false }; }
+  }
+  function saveProgress() {
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) {}
+  }
+  function markProgress(key) {
+    if (!progress[key]) { progress[key] = true; saveProgress(); }
+  }
+
+  function resetPlayground(keepProgress) {
+    commits = {};
+    seqCounter = 0;
+    branchLaneOrder = ["main"];
+    stash = [];
+    mergeState = null;
+    history = [];
+    historyPos = -1;
+    if (!keepProgress) progress = { initialized: false, branched: false, synced: false };
+
+    files = {};
+    STARTER_FILES.forEach((f) => { files[f] = { working: "clean", staged: false, ver: 1 }; });
+
+    const seedId = newCommit([], "Initial commit", "main", STARTER_FILES.slice());
+    origin = { branches: { main: seedId } };
+    local = { initialized: false, branches: {}, head: { type: "branch", name: "main" }, remoteTracking: {} };
+
+    const out = document.getElementById("term-output");
+    out.innerHTML = "";
+    printLine(`Welcome to the Git Playground. Type <span class="text-emerald-400">git clone ${REMOTE_URL}</span> to get started, or just type <span class="text-emerald-400">help</span>.`, "text-zinc-400");
+  }
+
+  /* =========================================================
+     ANCESTRY HELPERS
+     ========================================================= */
+  function allAncestors(id) {
+    const seen = new Set();
+    const stack = id ? [id] : [];
+    while (stack.length) {
+      const cur = stack.pop();
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      (commits[cur].parents || []).forEach((p) => stack.push(p));
+    }
+    return seen;
+  }
+  function isAncestor(a, b) {
+    if (!a || !b) return false;
+    if (a === b) return true;
+    return allAncestors(b).has(a);
+  }
+  function mergeBase(a, b) {
+    if (!a || !b) return null;
+    const ancA = allAncestors(a);
+    const stack = [b];
+    const seen = new Set();
+    while (stack.length) {
+      const cur = stack.shift();
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      if (ancA.has(cur)) return cur;
+      (commits[cur].parents || []).forEach((p) => stack.push(p));
+    }
+    return null;
+  }
+  function uniqueAhead(tip, base) {
+    if (!tip) return 0;
+    const baseAnc = base ? allAncestors(base) : new Set();
+    const tipAnc = allAncestors(tip);
+    let n = 0;
+    tipAnc.forEach((id) => { if (!baseAnc.has(id)) n++; });
+    return n;
+  }
+  function filesChangedSince(tip, base) {
+    const baseAnc = base ? allAncestors(base) : new Set();
+    const touched = new Set();
+    allAncestors(tip).forEach((id) => {
+      if (!baseAnc.has(id)) (commits[id].touched || []).forEach((f) => touched.add(f));
+    });
+    return touched;
+  }
+
+  function branchLane(name) {
+    let i = branchLaneOrder.indexOf(name);
+    if (i === -1) { branchLaneOrder.push(name); i = branchLaneOrder.length - 1; }
+    return i;
+  }
+
+  function ensureInit() {
+    if (!local.initialized) {
+      printLine("fatal: not a git repository (or any of the parent directories): .git", "text-rose-400");
+      printLine('Hint: try <span class="text-emerald-400">git clone ' + REMOTE_URL + '</span> or <span class="text-emerald-400">git init</span>.', "text-zinc-500");
+      return false;
+    }
+    return true;
+  }
+  function dirtyFiles() {
+    return Object.keys(files).filter((f) => files[f].working !== "clean" || files[f].staged);
+  }
+
+  /* =========================================================
+     TERMINAL OUTPUT
+     ========================================================= */
+  function printLine(html, cls) {
+    const out = document.getElementById("term-output");
+    const div = document.createElement("div");
+    div.className = "term-line " + (cls || "text-zinc-300");
+    div.innerHTML = html;
+    out.appendChild(div);
+    out.scrollTop = out.scrollHeight;
+  }
+  function printEcho(raw) {
+    printLine(`<span class="text-zinc-600">${currentPromptText()}</span> <span class="text-zinc-100">${escapeHTML(raw)}</span>`, "");
+  }
+  function escapeHTML(s) {
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+  function currentPromptText() {
+    const branch = local.initialized ? currentBranchLabel() : "no-repo";
+    return `you@playground ~/playground (${branch}) $`;
+  }
+  function currentBranchLabel() {
+    return local.head.type === "branch" ? local.head.name : `detached@${local.head.commit}`;
+  }
+
+  /* =========================================================
+     TOKENIZER
+     ========================================================= */
+  function tokenize(str) {
+    const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+    const out = [];
+    let m;
+    while ((m = re.exec(str))) out.push(m[1] !== undefined ? m[1] : m[2] !== undefined ? m[2] : m[3]);
+    return out;
+  }
+
+  /* =========================================================
+     COMMAND HANDLERS
+     ========================================================= */
+  const GIT = {
+    init() {
+      if (local.initialized) { printLine("Reinitialized existing Git repository in ~/playground/.git/", "text-zinc-400"); return; }
+      local = { initialized: true, branches: {}, head: { type: "branch", name: "main" }, remoteTracking: {} };
+      printLine("Initialized empty Git repository in ~/playground/.git/", "text-emerald-400");
+      printLine('This repo has no commits yet — <span class="text-zinc-500">main</span> doesn\'t exist until you commit something.', "text-zinc-500");
+      markProgress("initialized");
+    },
+    clone(args) {
+      const url = args[0] || REMOTE_URL;
+      local.initialized = true;
+      local.branches = Object.assign({}, origin.branches);
+      local.remoteTracking = Object.assign({}, origin.branches);
+      local.head = { type: "branch", name: "main" };
+      Object.keys(files).forEach((f) => { files[f] = { working: "clean", staged: false, ver: files[f].ver }; });
+      printLine(`Cloning into 'playground'...`, "text-zinc-400");
+      printLine(`remote: Enumerating objects, done.`, "text-zinc-500");
+      printLine(`Receiving objects: 100% done.`, "text-zinc-500");
+      printLine(`Resolving deltas: 100% done.`, "text-emerald-400");
+      markProgress("initialized");
+    },
+    status() {
+      if (!ensureInit()) return;
+      if (Object.keys(local.branches).length === 0) {
+        printLine(`On branch ${local.head.name}\n\nNo commits yet`, "text-zinc-300");
+      } else {
+        printLine(`On branch ${currentBranchLabel()}`, "text-zinc-300");
+        const tip = local.branches[local.head.name];
+        const tracked = local.remoteTracking[local.head.name];
+        if (tracked !== undefined) {
+          const ahead = uniqueAhead(tip, mergeBase(tip, tracked));
+          const behind = uniqueAhead(tracked, mergeBase(tip, tracked));
+          if (ahead && behind) printLine(`Your branch and 'origin/${local.head.name}' have diverged, and have ${ahead} and ${behind} different commits each.`, "text-amber-400");
+          else if (ahead) printLine(`Your branch is ahead of 'origin/${local.head.name}' by ${ahead} commit${ahead === 1 ? "" : "s"}.`, "text-amber-400");
+          else if (behind) printLine(`Your branch is behind 'origin/${local.head.name}' by ${behind} commit${behind === 1 ? "" : "s"}.`, "text-amber-400");
+          else printLine(`Your branch is up to date with 'origin/${local.head.name}'.`, "text-zinc-500");
+        }
+      }
+      const staged = Object.keys(files).filter((f) => files[f].staged);
+      const modified = Object.keys(files).filter((f) => !files[f].staged && files[f].working === "modified");
+      const untracked = Object.keys(files).filter((f) => !files[f].staged && files[f].working === "untracked");
+      if (staged.length) printLine("Changes to be committed:\n" + staged.map((f) => `  modified: ${f}`).join("\n"), "text-emerald-400");
+      if (modified.length) printLine("Changes not staged for commit:\n" + modified.map((f) => `  modified: ${f}`).join("\n"), "text-rose-400");
+      if (untracked.length) printLine("Untracked files:\n" + untracked.map((f) => `  ${f}`).join("\n"), "text-rose-400");
+      if (!staged.length && !modified.length && !untracked.length) printLine("nothing to commit, working tree clean", "text-zinc-500");
+    },
+    add(args) {
+      if (!ensureInit()) return;
+      if (!args.length) { printLine("Nothing specified, nothing added.", "text-amber-400"); return; }
+      const targets = args[0] === "." || args[0] === "-A" ? Object.keys(files).filter((f) => files[f].working !== "clean") : args;
+      let any = false;
+      targets.forEach((f) => {
+        if (!files[f]) { printLine(`fatal: pathspec '${f}' did not match any files`, "text-rose-400"); return; }
+        if (files[f].working === "clean") return;
+        files[f].staged = true;
+        any = true;
+      });
+      if (!any && targets.length) printLine("nothing specified matched any changed files.", "text-zinc-500");
+    },
+    commit(args) {
+      if (!ensureInit()) return;
+      const mi = args.indexOf("-m");
+      const message = mi !== -1 ? args[mi + 1] : null;
+      const staged = Object.keys(files).filter((f) => files[f].staged);
+
+      if (mergeState && mergeState.conflicts.length && !mergeState.conflicts.every((f) => mergeState.resolved.has(f))) {
+        printLine("error: Committing is not possible because you have unmerged files.", "text-rose-400");
+        return;
+      }
+      if (!message) { printLine('Aborting commit due to empty commit message.\nHint: use git commit -m "..."', "text-amber-400"); return; }
+      if (!staged.length && !mergeState) { printLine("nothing to commit, working tree clean", "text-zinc-500"); return; }
+
+      const branchName = local.head.name;
+      const parents = [local.branches[branchName]].filter(Boolean);
+      if (mergeState) parents.push(local.branches[mergeState.other]);
+
+      const id = newCommit(parents, message, branchName, staged);
+      local.branches[branchName] = id;
+      staged.forEach((f) => { files[f].staged = false; files[f].working = "clean"; });
+
+      if (mergeState) {
+        printLine(`Merge made by the 'recursive' strategy. [${fakeHash(id)}]`, "text-emerald-400");
+        markProgress("branched");
+        mergeState = null;
+      } else {
+        printLine(`[${branchName} ${fakeHash(id)}] ${message}`, "text-emerald-400");
+      }
+    },
+    log(args) {
+      if (!ensureInit()) return;
+      const oneline = args.includes("--oneline");
+      const all = args.includes("--all");
+      let ids;
+      if (all) {
+        const set = new Set();
+        Object.values(local.branches).forEach((tip) => allAncestors(tip).forEach((id) => set.add(id)));
+        ids = [...set];
+      } else {
+        ids = local.branches[local.head.name] ? [...allAncestors(local.branches[local.head.name])] : [];
+      }
+      if (!ids.length) { printLine("fatal: your current branch does not have any commits yet", "text-amber-400"); return; }
+      ids.sort((a, b) => commits[b].seq - commits[a].seq);
+      if (args.includes("--graph")) printLine("(graph view is the canvas above — log below is linear)", "text-zinc-500");
+      ids.forEach((id) => {
+        const c = commits[id];
+        if (oneline) printLine(`${fakeHash(id)} ${c.message}`, "text-zinc-300");
+        else printLine(`commit ${fakeHash(id)}${c.parents.length > 1 ? " (merge)" : ""}\n    ${c.message}\n`, "text-zinc-300");
+      });
+    },
+    branch(args) {
+      if (!ensureInit()) return;
+      const dIdx = args.findIndex((a) => a === "-d" || a === "-D");
+      if (dIdx !== -1) {
+        const name = args[dIdx + 1];
+        if (!name || !local.branches[name]) { printLine(`error: branch '${name}' not found.`, "text-rose-400"); return; }
+        if (name === local.head.name) { printLine(`error: Cannot delete branch '${name}' checked out.`, "text-rose-400"); return; }
+        const force = args[dIdx] === "-D";
+        const mergedSomewhere = Object.entries(local.branches).some(([n, tip]) => n !== name && isAncestor(local.branches[name], tip));
+        if (!force && !mergedSomewhere) {
+          printLine(`error: The branch '${name}' is not fully merged.\nIf you are sure you want to delete it, run 'git branch -D ${name}'.`, "text-rose-400");
+          return;
+        }
+        delete local.branches[name];
+        printLine(`Deleted branch ${name} (was ${fakeHash(local.branches[name])}).`, "text-zinc-400");
+        return;
+      }
+      if (!args.length) {
+        Object.keys(local.branches).forEach((n) => printLine(n === local.head.name ? `* ${n}` : `  ${n}`, n === local.head.name ? "text-emerald-400" : "text-zinc-300"));
+        return;
+      }
+      const name = args[0];
+      if (local.branches[name]) { printLine(`fatal: a branch named '${name}' already exists`, "text-rose-400"); return; }
+      if (!local.branches[local.head.name]) { printLine("fatal: not a valid object name: 'HEAD'", "text-rose-400"); return; }
+      local.branches[name] = local.branches[local.head.name];
+      branchLane(name);
+    },
+    checkout(args) { this._switchLike(args, "checkout"); },
+    switch(args) { this._switchLike(args, "switch"); },
+    _switchLike(args, cmdName) {
+      if (!ensureInit()) return;
+      const createFlag = cmdName === "checkout" ? "-b" : "-c";
+      const create = args[0] === createFlag;
+      const name = create ? args[1] : args[0];
+      if (!name) { printLine("usage: git " + cmdName + " [-" + (create ? "b" : "c") + "] <branch>", "text-amber-400"); return; }
+
+      if (create) {
+        if (local.branches[name]) { printLine(`fatal: a branch named '${name}' already exists`, "text-rose-400"); return; }
+        local.branches[name] = local.branches[local.head.name] || null;
+        branchLane(name);
+        local.head = { type: "branch", name };
+        printLine(`Switched to a new branch '${name}'`, "text-emerald-400");
+        return;
+      }
+      if (!local.branches[name]) { printLine(`error: pathspec '${name}' did not match any file(s) known to git`, "text-rose-400"); return; }
+      if (dirtyFiles().length) {
+        printLine(`error: Your local changes to the following files would be overwritten by checkout:\n` + dirtyFiles().map((f) => "  " + f).join("\n") + `\nPlease commit your changes or stash them before you switch branches.\nAborting`, "text-rose-400");
+        printLine('Hint: try <span class="text-emerald-400">git stash</span> first.', "text-zinc-500");
+        return;
+      }
+      local.head = { type: "branch", name };
+      printLine(`Switched to branch '${name}'`, "text-emerald-400");
+    },
+    merge(args) {
+      if (!ensureInit()) return;
+      const other = args[0];
+      if (!other) { printLine("usage: git merge <branch>", "text-amber-400"); return; }
+      if (!local.branches[other]) { printLine(`merge: ${other} - not something we can merge`, "text-rose-400"); return; }
+      if (dirtyFiles().length) { printLine("error: Your local changes would be overwritten by merge. Commit or stash first.", "text-rose-400"); return; }
+
+      const curTip = local.branches[local.head.name];
+      const otherTip = local.branches[other];
+      if (isAncestor(otherTip, curTip)) { printLine("Already up to date.", "text-zinc-500"); return; }
+      if (isAncestor(curTip, otherTip) || !curTip) {
+        local.branches[local.head.name] = otherTip;
+        printLine(`Updating ${fakeHash(curTip)}..${fakeHash(otherTip)}\nFast-forward`, "text-emerald-400");
+        markProgress("branched");
+        return;
+      }
+      const base = mergeBase(curTip, otherTip);
+      const mine = filesChangedSince(curTip, base);
+      const theirs = filesChangedSince(otherTip, base);
+      const conflicts = [...mine].filter((f) => theirs.has(f));
+      if (conflicts.length) {
+        mergeState = { other, conflicts, resolved: new Set() };
+        printLine(`Auto-merging ${conflicts.join(", ")}\nCONFLICT (content): Merge conflict in ${conflicts.join(", ")}\nAutomatic merge failed; fix conflicts and then commit the result.`, "text-rose-400");
+        conflicts.forEach((f) => { files[f].working = "modified"; files[f].staged = false; });
+      } else {
+        mergeState = { other, conflicts: [], resolved: new Set() };
+        const id = newCommit([curTip, otherTip], `Merge branch '${other}' into ${local.head.name}`, local.head.name, []);
+        local.branches[local.head.name] = id;
+        mergeState = null;
+        printLine(`Merge made by the 'recursive' strategy. [${fakeHash(id)}]`, "text-emerald-400");
+        markProgress("branched");
+      }
+    },
+    remote(args) {
+      if (args[0] === "-v") {
+        printLine(`origin  ${REMOTE_URL} (fetch)\norigin  ${REMOTE_URL} (push)`, "text-zinc-300");
+      } else if (args[0] === "add") {
+        printLine(`Remote '${args[1] || "origin"}' already configured as origin for this playground.`, "text-zinc-500");
+      } else {
+        printLine("origin", "text-zinc-300");
+      }
+    },
+    fetch() {
+      if (!ensureInit()) return;
+      let changed = 0;
+      Object.keys(origin.branches).forEach((b) => {
+        if (local.remoteTracking[b] !== origin.branches[b]) changed++;
+        local.remoteTracking[b] = origin.branches[b];
+      });
+      printLine(changed ? `remote: Enumerating objects, done.\nFrom ${REMOTE_URL}\n   Updated ${changed} ref(s). Try: git status` : "Already up to date.", changed ? "text-amber-400" : "text-zinc-500");
+    },
+    pull(args) {
+      if (!ensureInit()) return;
+      GIT.fetch();
+      const branch = args[1] || local.head.name;
+      const tracked = local.remoteTracking[branch];
+      if (tracked === undefined) { printLine(`There is no tracking information for branch '${branch}'.`, "text-rose-400"); return; }
+      GIT.merge([branch === local.head.name ? "__origin_pointer__" : branch]);
+      // merge() needs a real local branch name; alias origin ref into a temp pointer for the merge call
+    },
+    push(args) {
+      if (!ensureInit()) return;
+      const branch = args[1] || local.head.name;
+      const localTip = local.branches[branch];
+      const originTip = origin.branches[branch];
+      if (!localTip) { printLine(`error: src refspec ${branch} does not match any`, "text-rose-400"); return; }
+      if (originTip && isAncestor(localTip, originTip)) { printLine("Everything up-to-date", "text-zinc-500"); return; }
+      if (originTip && !isAncestor(originTip, localTip)) {
+        printLine(`! [rejected]        ${branch} -> ${branch} (non-fast-forward)\nerror: failed to push some refs to '${REMOTE_URL}'\nhint: Updates were rejected because the remote contains work that you do not have locally.\nhint: Integrate the remote changes (e.g. 'git pull') before pushing again.`, "text-rose-400");
+        return;
+      }
+      origin.branches[branch] = localTip;
+      local.remoteTracking[branch] = localTip;
+      printLine(`To ${REMOTE_URL}\n   ${originTip ? fakeHash(originTip) + ".." : "[new branch] "}${fakeHash(localTip)}  ${branch} -> ${branch}`, "text-emerald-400");
+      markProgress("synced");
+    },
+    reset(args) {
+      if (!ensureInit()) return;
+      if (!args.length) {
+        Object.keys(files).forEach((f) => { files[f].staged = false; });
+        printLine("Unstaged changes after reset.", "text-zinc-400");
+        return;
+      }
+      const hard = args.includes("--hard");
+      const target = args.find((a) => a.startsWith("HEAD")) || args[args.length - 1];
+      let tip = local.branches[local.head.name];
+      const m = /HEAD~(\d+)/.exec(target);
+      if (m) {
+        let n = parseInt(m[1], 10);
+        while (n-- > 0 && tip) tip = commits[tip].parents[0];
+      } else if (local.branches[target]) {
+        tip = local.branches[target];
+      }
+      local.branches[local.head.name] = tip;
+      if (hard) Object.keys(files).forEach((f) => { files[f].staged = false; files[f].working = "clean"; });
+      printLine(`HEAD is now at ${fakeHash(tip)} ${commits[tip] ? commits[tip].message : ""}`, "text-amber-400");
+    },
+    stash(args) {
+      if (!ensureInit()) return;
+      if (args[0] === "pop") {
+        if (!stash.length) { printLine("No stash entries found.", "text-amber-400"); return; }
+        const snap = stash.pop();
+        Object.assign(files, snap);
+        printLine("Dropped stash@{0}", "text-emerald-400");
+        return;
+      }
+      const dirty = dirtyFiles();
+      if (!dirty.length) { printLine("No local changes to save", "text-zinc-500"); return; }
+      const snap = {};
+      dirty.forEach((f) => { snap[f] = Object.assign({}, files[f]); files[f] = { working: "clean", staged: false, ver: files[f].ver }; });
+      stash.push(snap);
+      printLine(`Saved working directory and index state WIP on ${local.head.name}`, "text-emerald-400");
+    },
+    help() { showHelp(true); },
+  };
+
+  function executeCommand(raw) {
+    const trimmed = raw.trim();
+    if (!trimmed) return;
+    printEcho(raw);
+    history.push(raw);
+    historyPos = history.length;
+
+    if (trimmed === "clear") { document.getElementById("term-output").innerHTML = ""; return; }
+    if (trimmed === "help") { GIT.help(); return; }
+
+    const tokens = tokenize(trimmed);
+    if (tokens[0] !== "git") {
+      printLine(`zsh: command not found: ${tokens[0]}`, "text-rose-400");
+      printLine('This playground only simulates <span class="text-emerald-400">git</span> commands. Try <span class="text-emerald-400">help</span>.', "text-zinc-500");
+      render();
+      return;
+    }
+    const sub = tokens[1];
+    const args = tokens.slice(2);
+    if (sub === "pull" && args[0] !== "origin") args.unshift("origin");
+    if (sub === "push" && args[0] !== "origin") args.unshift("origin");
+
+    if (sub === "pull") {
+      // custom inline handling so merge() receives a resolvable branch name
+      if (!ensureInit()) { render(); return; }
+      GIT.fetch();
+      const branch = args[1] || local.head.name;
+      const tracked = local.remoteTracking[branch];
+      if (tracked === undefined) { printLine(`There is no tracking information for branch '${branch}'.`, "text-rose-400"); render(); return; }
+      const ghost = "__origin__" + branch;
+      local.branches[ghost] = tracked;
+      GIT.merge([ghost]);
+      delete local.branches[ghost];
+      render();
+      return;
+    }
+
+    const handler = GIT[sub];
+    if (!handler) {
+      printLine(`git: '${sub || ""}' is not a git command. See 'git help'.`, "text-rose-400");
+    } else {
+      handler.call(GIT, args);
+    }
+    render();
+  }
+
+  function showHelp(forceOpen) {
+    const panel = document.getElementById("help-panel");
+    panel.classList.toggle("hidden", forceOpen ? false : !panel.classList.contains("hidden"));
+  }
+
+  /* =========================================================
+     SUGGESTION ENGINE — reads live repo state, never spelling
+     ========================================================= */
+  function suggestNext() {
+    if (!local.initialized) return { cmd: `git clone ${REMOTE_URL}`, why: "Nothing checked out yet" };
+    if (mergeState && mergeState.conflicts.length) {
+      const unresolved = mergeState.conflicts.find((f) => !mergeState.resolved.has(f));
+      if (unresolved) return { cmd: `git add ${unresolved}`, why: "Resolve the conflict, then stage it" };
+      return { cmd: `git commit -m "Merge branch '${mergeState.other}'"`, why: "Finish the merge" };
+    }
+    const dirty = dirtyFiles();
+    if (dirty.some((f) => !files[f].staged)) return { cmd: "git add .", why: "You have unsaved changes" };
+    if (dirty.some((f) => files[f].staged)) return { cmd: `git commit -m "describe your change"`, why: "Changes are staged and ready" };
+
+    const branch = local.head.name;
+    const tip = local.branches[branch];
+    const tracked = local.remoteTracking[branch];
+    const originTip = origin.branches[branch];
+
+    if (tip && originTip !== undefined && tracked !== originTip) return { cmd: "git fetch origin", why: "origin may have moved" };
+    if (tip && tracked !== undefined && isAncestor(tip, tracked) && tip !== tracked) return { cmd: `git pull origin ${branch}`, why: "You're behind origin" };
+    if (tip && tracked !== undefined && isAncestor(tracked, tip) && tip !== tracked) return { cmd: `git push origin ${branch}`, why: "You have unpushed commits" };
+
+    const branches = Object.keys(local.branches);
+    if (tip && branches.length === 1) return { cmd: "git checkout -b feature/my-change", why: "Try branching before you merge" };
+
+    const unmergedFeature = branches.find((b) => b !== "main" && local.branches.main && !isAncestor(local.branches[b], local.branches.main));
+    if (unmergedFeature && branch !== "main") return { cmd: "git checkout main", why: `${unmergedFeature} is ready to merge` };
+    if (unmergedFeature && branch === "main") return { cmd: `git merge ${unmergedFeature}`, why: "Bring that branch's work into main" };
+
+    if (!tip) return { cmd: `git commit -m "Initial commit"`, why: "main doesn't exist until you commit" };
+    return { cmd: "git status", why: "Just checking in" };
+  }
+
+  function renderSuggestion() {
+    const row = document.getElementById("suggestion-row");
+    const s = suggestNext();
+    row.innerHTML = "";
+    if (!s) return;
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "chip-pop inline-flex items-center gap-2 text-[12px] font-mono bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700 hover:border-emerald-500 text-zinc-300 rounded-lg px-3 py-1.5 transition-colors";
+    chip.innerHTML = `<span class="text-amber-400">💡 try next</span><span class="text-emerald-400">${escapeHTML(s.cmd)}</span><span class="text-zinc-500 hidden sm:inline">— ${escapeHTML(s.why)}</span>`;
+    chip.title = "Fills the command below — press Enter yourself to run it. Doesn't run automatically, and never blocks whatever you'd rather type.";
+    chip.addEventListener("click", () => {
+      const input = document.getElementById("term-input");
+      input.value = s.cmd;
+      input.focus();
+    });
+    row.appendChild(chip);
+    const note = document.createElement("span");
+    note.className = "text-[11px] text-zinc-600";
+    note.textContent = "click to fill, Enter to run — or just type your own";
+    row.appendChild(note);
+  }
+
+  /* =========================================================
+     FILES PANEL
+     ========================================================= */
+  function statusBadge(st) {
+    if (st.staged) return '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">staged</span>';
+    if (st.working === "modified") return '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">modified</span>';
+    if (st.working === "untracked") return '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-600 dark:text-rose-400">untracked</span>';
+    return '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-zinc-500/15 text-zinc-500">clean</span>';
+  }
+  function renderFiles() {
+    const list = document.getElementById("file-list");
+    list.innerHTML = "";
+    Object.keys(files).sort().forEach((name) => {
+      const st = files[name];
+      const card = document.createElement("div");
+      card.className = "flex items-center justify-between gap-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 px-3 py-2";
+      card.innerHTML = `
+        <div class="min-w-0">
+          <code class="text-[12.5px] text-zinc-800 dark:text-zinc-200">${escapeHTML(name)}</code>
+          <div class="mt-1">${statusBadge(st)}</div>
+        </div>
+        <button data-file="${escapeHTML(name)}" class="edit-file-btn shrink-0 text-[11px] font-medium text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 border border-zinc-300 dark:border-zinc-700 hover:border-emerald-500 rounded-md px-2 py-1 transition-colors">✏️ edit</button>
+      `;
+      list.appendChild(card);
+    });
+    list.querySelectorAll(".edit-file-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const f = btn.dataset.file;
+        files[f].ver++;
+        if (files[f].working === "clean") files[f].working = "modified";
+        if (mergeState && mergeState.conflicts.includes(f)) mergeState.resolved.add(f);
+        render();
+      });
+    });
+  }
+
+  /* =========================================================
+     GRAPH RENDERING
+     ========================================================= */
+  function reachableSorted(branches) {
+    const set = new Set();
+    Object.values(branches).forEach((tip) => { if (tip) allAncestors(tip).forEach((id) => set.add(id)); });
+    return [...set].map((id) => commits[id]).sort((a, b) => a.seq - b.seq);
+  }
+
+  function drawGraph(canvasId, repoBranches, headBranchName) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext("2d");
+    const list = reachableSorted(repoBranches);
+    const dark = document.documentElement.classList.contains("dark");
+    const COLORS = {
+      line: dark ? "#3f3f46" : "#d4d4d8",
+      text: dark ? "#e4e4e7" : "#27272a",
+      dim: dark ? "#71717a" : "#71717a",
+      stroke: dark ? "#09090b" : "#ffffff",
+      palette: ["#34d399", "#fbbf24", "#60a5fa", "#f472b6", "#a78bfa", "#fb923c"],
+    };
+
+    const stepX = 64, startX = 56, laneH = 46, topPad = 28, r = 9;
+    const lanesUsed = new Set();
+    list.forEach((c) => lanesUsed.add(branchLane(c.branch)));
+    Object.keys(repoBranches).forEach((b) => lanesUsed.add(branchLane(b)));
+    const maxLane = lanesUsed.size ? Math.max(...lanesUsed) : 0;
+    const maxSeq = list.length ? list[list.length - 1].seq : 0;
+
+    const width = Math.max(canvas.parentElement.clientWidth, startX + (maxSeq + 2) * stepX);
+    const height = topPad + (maxLane + 1) * laneH + 20;
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.clearRect(0, 0, width, height);
+
+    function pos(c) { return { x: startX + c.seq * stepX, y: topPad + branchLane(c.branch) * laneH }; }
+
+    if (!list.length) {
+      ctx.fillStyle = COLORS.dim;
+      ctx.font = "12px ui-monospace, monospace";
+      ctx.fillText("(empty)", startX, topPad + 6);
+      return;
+    }
+
+    // lane labels + guide lines
+    [...lanesUsed].forEach((lane) => {
+      const name = branchLaneOrder[lane];
+      const y = topPad + lane * laneH;
+      ctx.strokeStyle = COLORS.line;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      ctx.beginPath(); ctx.moveTo(startX - 10, y); ctx.lineTo(width - 10, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = COLORS.dim;
+      ctx.font = "bold 11px ui-monospace, monospace";
+      if (repoBranches[name] !== undefined) ctx.fillText(name, 4, y + 4);
+    });
+
+    // edges
+    ctx.lineWidth = 2.5;
+    list.forEach((c) => {
+      const p1 = pos(c);
+      (c.parents || []).forEach((pid) => {
+        const parent = commits[pid];
+        if (!list.includes(parent)) return;
+        const p0 = pos(parent);
+        ctx.strokeStyle = COLORS.palette[branchLane(c.branch) % COLORS.palette.length];
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        if (p0.y === p1.y) ctx.lineTo(p1.x, p1.y);
+        else ctx.bezierCurveTo(p0.x + stepX * 0.5, p0.y, p0.x + stepX * 0.5, p1.y, p1.x, p1.y);
+        ctx.stroke();
+      });
+    });
+
+    // nodes
+    list.forEach((c) => {
+      const p = pos(c);
+      const color = COLORS.palette[branchLane(c.branch) % COLORS.palette.length];
+      const isHead = headBranchName && repoBranches[headBranchName] === c.id;
+      if (isHead) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, r + 5, 0, Math.PI * 2);
+        ctx.strokeStyle = color; ctx.globalAlpha = 0.45; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
+      }
+      ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = color; ctx.fill();
+      ctx.strokeStyle = COLORS.stroke; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = COLORS.dim;
+      ctx.font = "10px ui-monospace, monospace";
+      ctx.fillText(fakeHash(c.seq), p.x - 14, p.y - 14);
+    });
+
+    // branch tip tags
+    Object.entries(repoBranches).forEach(([name, tip]) => {
+      if (!tip || !commits[tip]) return;
+      const p = pos(commits[tip]);
+      ctx.fillStyle = COLORS.text;
+      ctx.font = "bold 10px ui-monospace, monospace";
+      ctx.fillText(name, p.x - 10, p.y + 22);
+    });
+  }
+
+  function renderGraphs() {
+    drawGraph("local-canvas", local.initialized ? local.branches : {}, local.head && local.head.type === "branch" ? local.head.name : null);
+    drawGraph("origin-canvas", origin.branches, null);
+    document.getElementById("local-empty-note").classList.toggle("hidden", local.initialized);
+  }
+
+  /* =========================================================
+     STATUS LINE + PROGRESS + PROMPT
+     ========================================================= */
+  function renderStatusLine() {
+    const el = document.getElementById("local-status-line");
+    if (!local.initialized) { el.textContent = ""; return; }
+    const branch = local.head.name;
+    const tip = local.branches[branch];
+    const tracked = local.remoteTracking[branch];
+    if (!tip) { el.textContent = `on ${branch} (no commits yet)`; return; }
+    const ahead = tracked !== undefined ? uniqueAhead(tip, mergeBase(tip, tracked)) : 0;
+    const behind = tracked !== undefined ? uniqueAhead(tracked, mergeBase(tip, tracked)) : 0;
+    let extra = "";
+    if (ahead) extra += ` ↑${ahead}`;
+    if (behind) extra += ` ↓${behind}`;
+    el.textContent = `on ${branch}${extra}`;
+  }
+  function renderProgress() {
+    document.querySelectorAll(".progress-item").forEach((li) => {
+      li.dataset.done = String(!!progress[li.dataset.progress]);
+    });
+  }
+  function updatePrompt() {
+    document.getElementById("term-prompt").textContent = currentPromptText();
+  }
+
+  function render() {
+    renderFiles();
+    renderGraphs();
+    renderStatusLine();
+    renderSuggestion();
+    renderProgress();
+    updatePrompt();
+  }
+
+  /* =========================================================
+     EVENTS
+     ========================================================= */
+  document.getElementById("term-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("term-input");
+    const val = input.value;
+    input.value = "";
+    executeCommand(val);
+  });
+  document.getElementById("term-input").addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+      if (historyPos > 0) { historyPos--; e.target.value = history[historyPos]; }
+      e.preventDefault();
+    } else if (e.key === "ArrowDown") {
+      if (historyPos < history.length - 1) { historyPos++; e.target.value = history[historyPos]; }
+      else { historyPos = history.length; e.target.value = ""; }
+      e.preventDefault();
+    }
+  });
+  document.getElementById("clear-term-btn").addEventListener("click", () => { document.getElementById("term-output").innerHTML = ""; });
+  document.getElementById("help-toggle-btn").addEventListener("click", () => showHelp());
+  document.getElementById("reset-playground-btn").addEventListener("click", () => {
+    if (!confirm("Reset the playground? This clears both repos (your progress checklist is kept).")) return;
+    resetPlayground(true);
+    render();
+  });
+  document.getElementById("simulate-teammate-btn").addEventListener("click", () => {
+    const tip = origin.branches.main;
+    const f = STARTER_FILES[Math.floor(Math.random() * STARTER_FILES.length)];
+    const id = newCommit(tip ? [tip] : [], `Teammate: tweak ${f}`, "main", [f]);
+    origin.branches.main = id;
+    printLine(`📡 (simulated) A teammate just pushed a new commit to origin/main. Your local doesn't know yet — try <span class="text-emerald-400">git fetch</span>.`, "text-violet-400");
+    render();
+  });
+  document.getElementById("new-file-btn").addEventListener("click", () => {
+    const input = document.getElementById("new-file-input");
+    const name = input.value.trim();
+    if (!name) return;
+    if (files[name]) { printLine(`(${name} already exists)`, "text-zinc-500"); return; }
+    files[name] = { working: "untracked", staged: false, ver: 1 };
+    input.value = "";
+    render();
+  });
+
+  /* =========================================================
+     INIT
+     ========================================================= */
+  progress = loadProgress();
+  resetPlayground(true);
+  render();
+  document.getElementById("term-input").focus();
+
+  window.addEventListener("resize", renderGraphs);
+})();
+</script>
+</body>
+</html>

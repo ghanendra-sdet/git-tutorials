@@ -7,18 +7,6 @@ description: "A free, hands-on Git + GitHub course. Learn → See → Do → Bre
 
 # 🐙 GIT Tutorials — From `git init` to "wait, how do I undo this"
 
-### The Git course that assumes you'll actually forget half of this by next week (same, honestly)
-
-![Status](https://img.shields.io/badge/status-active-success.svg)
-![Level](https://img.shields.io/badge/level-beginner%20to%20advanced-blue.svg)
-![Modules](https://img.shields.io/badge/modules-8-orange.svg)
-![Vibe](https://img.shields.io/badge/vibe-no%20boring%20lectures-ff69b4.svg)
-
-**A structured, hands-on Git + GitHub course — real commands, real analogies, real "oh no I force-pushed to main" recovery stories, zero corporate-training energy.**
-
-**Learn → See → Do → Break → Fix → Remember.** You don't just read about a command — you run it,
-in a disposable sandbox, immediately.
-
 [![Start Learning](https://img.shields.io/badge/🚀-Start%20Learning-2563eb?style=for-the-badge)](./00-introduction/)
 [![Course Roadmap](https://img.shields.io/badge/📚-Course%20Roadmap-16a34a?style=for-the-badge)](#️-the-path)
 [![Practice Labs](https://img.shields.io/badge/🧪-Practice%20Labs-d97706?style=for-the-badge)](./04-undo-and-recovery/#-disaster-labs)
@@ -151,9 +139,14 @@ progression. This is where reading turns into muscle memory.
 
 ## 🧠 Practice & Recall
 
-Reading a module once won't make the commands stick — using them will. Three resources built
+Reading a module once won't make the commands stick — using them will. Four resources built
 specifically for that:
 
+- **[Git Playground](./resources/playground.html)** — a real terminal against a simulated local
+  repo *and* a remote called `origin`, side by side. Type actual `git` commands and watch
+  branching, merging, push and pull happen on a live, dual commit graph. A "try next" chip reads
+  your repo's actual state to suggest a next step — it's a hint, never a gate: whatever you type
+  and hit Enter on always runs.
 - **[Interactive Cheatsheet Matrix](./resources/interactive-cheatsheet.html)** — every command,
   searchable and filterable by "how much you're panicking," with one-click copy and a live,
   consequence-free visual Git tree sandbox (click "commit," "branch," "merge" and watch the graph
